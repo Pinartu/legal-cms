@@ -1,0 +1,105 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// User model for Admin / Authors
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  bio           String?   // Editable without code via panel
+  profileImage  String?
+  role          String    @default("AUTHOR") // "ADMIN", "AUTHOR"
+  posts         Post[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// Main Content Model (Articles/Posts)
+model Post {
+  id              String    @id @default(cuid())
+  title           String
+  slug            String    @unique
+  content         String    // Rich text editor content (HTML/JSON)
+  isPublished     Boolean   @default(false)
+  publishedAt     DateTime?
+
+  // Taxonomies
+  categoryId      String?
+  category        Category? @relation(fields: [categoryId], references: [id])
+  tags            Tag[]     @relation("PostTags")
+
+  // Relationships
+  authorId        String
+  author          User      @relation(fields: [authorId], references: [id])
+  featuredMediaId String?
+  featuredMedia   Media?    @relation(fields: [featuredMediaId], references: [id])
+  faqs            FAQ[]     // For JSON-LD FAQ Schema injection
+
+  // Dynamic SEO Control
+  metaTitle       String?
+  metaDescription String?
+  canonicalUrl    String?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// Taxonomy Management: Categories
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  posts       Post[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Taxonomy Management: Tags (Multiple per post)
+model Tag {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  posts     Post[]   @relation("PostTags")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Media Management (Images, PDF attachments for legal docs)
+model Media {
+  id        String   @id @default(cuid())
+  url       String
+  fileName  String
+  fileType  String   // e.g., 'image/png', 'application/pdf'
+  altText   String   // Mandatory image "Alt Text" requirement
+  posts     Post[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Structured FAQ Schema Data
+model FAQ {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Custom CMS Static Site Content (Menus, Footer, Global Config)
+model SiteContent {
+  id          String   @id @default(cuid())
+  key         String   @unique // e.g., 'footer_text', 'main_menu', 'about_page'
+  value       String   // Stringified JSON or HTML
+  description String?
+  updatedAt   DateTime @updatedAt
+}
