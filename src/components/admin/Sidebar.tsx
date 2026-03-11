@@ -1,8 +1,9 @@
 import Link from 'next/link';
-import { LayoutDashboard, FileText, Tags, Image as ImageIcon, Settings, FolderTree } from 'lucide-react';
+import { LayoutDashboard, FileText, Tags, Image as ImageIcon, Settings, FolderTree, Layers } from 'lucide-react';
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+  { name: 'Sayfalar', href: '/admin/pages', icon: Layers },
   { name: 'Posts', href: '/admin/posts', icon: FileText },
   { name: 'Categories', href: '/admin/categories', icon: FolderTree },
   { name: 'Tags', href: '/admin/tags', icon: Tags },

@@ -3,39 +3,74 @@ import { prisma } from '@/lib/prisma';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://legalinsights.example.com';
+  const locales = ['tr', 'en'];
 
-  // Base routes
-  const routes = [
-    { url: `${baseUrl}`, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
-    { url: `${baseUrl}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${baseUrl}/contact`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${baseUrl}/search`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-  ] as MetadataRoute.Sitemap;
+  // Base routes for both languages
+  const staticPages = ['', '/about', '/contact', '/search'];
+  const routes: MetadataRoute.Sitemap = [];
 
-  // Fetch Published Posts
+  for (const locale of locales) {
+    for (const page of staticPages) {
+      routes.push({
+        url: `${baseUrl}/${locale}${page}`,
+        lastModified: new Date(),
+        changeFrequency: page === '' ? 'daily' : 'monthly',
+        priority: page === '' ? 1 : 0.8,
+        alternates: {
+          languages: {
+            tr: `${baseUrl}/tr${page}`,
+            en: `${baseUrl}/en${page}`,
+          },
+        },
+      });
+    }
+  }
+
+  // Published posts
   const posts = await prisma.post.findMany({
     where: { isPublished: true },
-    select: { slug: true, updatedAt: true },
+    select: { slug: true, updatedAt: true, locale: true, translationOfId: true, translations: { select: { slug: true, locale: true } } },
   });
 
-  const postRoutes = posts.map((post: any) => ({
-    url: `${baseUrl}/article/${post.slug}`,
-    lastModified: post.updatedAt,
-    changeFrequency: 'weekly',
-    priority: 0.9,
-  })) as MetadataRoute.Sitemap;
-  
-  // Fetch Categories
+  for (const post of posts) {
+    const altPost = post.translations?.[0];
+    const altLang = post.locale === 'tr' ? 'en' : 'tr';
+
+    routes.push({
+      url: `${baseUrl}/${post.locale}/article/${post.slug}`,
+      lastModified: post.updatedAt,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+      alternates: altPost ? {
+        languages: {
+          [post.locale]: `${baseUrl}/${post.locale}/article/${post.slug}`,
+          [altLang]: `${baseUrl}/${altLang}/article/${altPost.slug}`,
+        },
+      } : undefined,
+    });
+  }
+
+  // Categories (both languages)
   const categories = await prisma.category.findMany({
     select: { slug: true, updatedAt: true },
   });
 
-  const categoryRoutes = categories.map((cat: any) => ({
-    url: `${baseUrl}/category/${cat.slug}`,
-    lastModified: cat.updatedAt,
-    changeFrequency: 'weekly',
-    priority: 0.7,
-  })) as MetadataRoute.Sitemap;
+  for (const locale of locales) {
+    for (const cat of categories) {
+      routes.push({
+        url: `${baseUrl}/${locale}/category/${cat.slug}`,
+        lastModified: cat.updatedAt,
+        changeFrequency: 'weekly',
+        priority: 0.7,
+        alternates: {
+          languages: {
+            tr: `${baseUrl}/tr/category/${cat.slug}`,
+            en: `${baseUrl}/en/category/${cat.slug}`,
+          },
+        },
+      });
+    }
+  }
 
-  return [...routes, ...postRoutes, ...categoryRoutes];
+  return routes;
 }

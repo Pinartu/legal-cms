@@ -44,6 +44,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    // Create fallback temp author if database empty since Auth is missing right now
+    let user = await prisma.user.findUnique({ where: { id: authorId } });
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          id: authorId,
+          name: 'Demo Author',
+          email: 'admin@legalcms.temp',
+          passwordHash: 'not-needed',
+        }
+      });
+    }
+
     const newPost = await prisma.post.create({
       data: {
         title,

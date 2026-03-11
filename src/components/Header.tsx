@@ -1,44 +1,130 @@
-import Link from 'next/link';
-import { Search } from 'lucide-react';
-import { prisma } from '@/lib/prisma';
+"use client";
 
-export default async function Header() {
-  const categories = await prisma.category.findMany({
-    take: 5,
-    orderBy: { name: 'asc' }
-  });
+import Link from 'next/link';
+import { Search, Menu, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
+import { usePathname } from 'next/navigation';
+import type { Locale } from '@/lib/i18n';
+
+const NAV_ITEMS: Record<Locale, { label: string; href: string }[]> = {
+  tr: [
+    { label: 'Hakkımızda', href: '/about' },
+    { label: 'Uzmanlık Alanları', href: '/category/all' },
+    { label: 'Yayınlar', href: '/search' },
+    { label: 'İletişim', href: '/contact' },
+  ],
+  en: [
+    { label: 'About Us', href: '/about' },
+    { label: 'Practice Areas', href: '/category/all' },
+    { label: 'Publications', href: '/search' },
+    { label: 'Contact', href: '/contact' },
+  ],
+};
+
+const TAGLINE: Record<Locale, string> = {
+  tr: 'Ticaret Hukuku Danışmanlığı',
+  en: 'Commercial Law Advisory',
+};
+
+export default function Header({ categories = [], lang = 'tr' }: { categories?: any[]; lang?: Locale }) {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+
+  const navItems = NAV_ITEMS[lang] || NAV_ITEMS.tr;
+  const altLang = lang === 'tr' ? 'en' : 'tr';
+
+  // Build the alternate-language URL
+  const altUrl = pathname.replace(`/${lang}`, `/${altLang}`);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 60);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          
-          <div className="flex-shrink-0 flex items-center">
-            <Link href="/" className="font-serif text-2xl font-bold tracking-tight text-slate-900">
-              Legal<span className="text-slate-500 font-light">Insights</span>
-            </Link>
+    <>
+      <header className={cn(
+        "fixed top-0 w-full z-50 transition-all duration-500 ease-in-out",
+        scrolled ? "bg-[#1a2332] shadow-lg py-3" : "bg-transparent py-5"
+      )}>
+        {/* Top bar */}
+        <div className={cn(
+          "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300 overflow-hidden",
+          scrolled ? "max-h-0 opacity-0" : "max-h-10 opacity-100 mb-3"
+        )}>
+          <div className="flex justify-end items-center gap-6 text-xs text-white/60">
+            <a href="mailto:info@legalinsights.com" className="hover:text-white transition-colors">info@legalinsights.com</a>
+            <span>+90 (212) 555 00 00</span>
+            <div className="flex items-center gap-2 border-l border-white/20 pl-4">
+              <Link href={lang === 'tr' ? pathname : altUrl} className={cn("transition-colors", lang === 'tr' ? "text-white font-semibold" : "hover:text-white")}>TR</Link>
+              <span className="text-white/30">|</span>
+              <Link href={lang === 'en' ? pathname : altUrl} className={cn("transition-colors", lang === 'en' ? "text-white font-semibold" : "hover:text-white")}>EN</Link>
+            </div>
           </div>
-          
-          <nav className="hidden md:flex space-x-8">
-            <Link href="/" className="text-sm font-medium text-slate-700 hover:text-slate-900">Home</Link>
-            {categories.map(c => (
-              <Link key={c.id} href={`/category/${c.slug}`} className="text-sm font-medium text-slate-700 hover:text-slate-900">
-                {c.name}
-              </Link>
-            ))}
-            <Link href="/about" className="text-sm font-medium text-slate-700 hover:text-slate-900">About</Link>
-            <Link href="/contact" className="text-sm font-medium text-slate-700 hover:text-slate-900">Contact</Link>
-          </nav>
-
-          <div className="flex items-center">
-            <Link href="/search" className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
-              <span className="sr-only">Search</span>
-              <Search className="h-5 w-5" />
-            </Link>
-          </div>
-          
         </div>
+
+        {/* Main nav */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center">
+            <Link href={`/${lang}`} className="flex items-center gap-3 group">
+              <div className="w-10 h-10 border-2 border-[#b8860b] flex items-center justify-center transition-colors group-hover:bg-[#b8860b]">
+                <span className="text-[#b8860b] font-serif text-xl font-bold group-hover:text-white transition-colors">L</span>
+              </div>
+              <div className="hidden sm:block">
+                <span className="text-white font-serif text-xl font-bold tracking-wide">LEGAL<span className="font-light text-[#b8860b]">INSIGHTS</span></span>
+                <p className="text-[10px] text-white/40 uppercase tracking-[0.3em] -mt-0.5">{TAGLINE[lang]}</p>
+              </div>
+            </Link>
+
+            <nav className="hidden lg:flex items-center gap-1">
+              {navItems.map((item) => (
+                <Link key={item.href} href={`/${lang}${item.href}`} className="px-4 py-2 text-[13px] font-medium tracking-wider uppercase text-white/80 hover:text-[#b8860b] transition-colors relative group">
+                  {item.label}
+                  <span className="absolute bottom-0 left-4 right-4 h-[2px] bg-[#b8860b] scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+                </Link>
+              ))}
+              {categories.slice(0, 2).map((c: any) => (
+                <Link key={c.id} href={`/${lang}/category/${c.slug}`} className="px-4 py-2 text-[13px] font-medium tracking-wider uppercase text-white/80 hover:text-[#b8860b] transition-colors relative group">
+                  {c.name}
+                  <span className="absolute bottom-0 left-4 right-4 h-[2px] bg-[#b8860b] scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+                </Link>
+              ))}
+            </nav>
+
+            <div className="flex items-center gap-4">
+              <Link href={`/${lang}/search`} className="text-white/70 hover:text-[#b8860b] transition-colors p-2">
+                <Search className="h-5 w-5" />
+              </Link>
+              <button onClick={() => setMobileOpen(!mobileOpen)} className="lg:hidden text-white/70 hover:text-white transition-colors p-2">
+                {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile Menu */}
+      <div className={cn(
+        "fixed inset-0 z-40 bg-[#1a2332] transition-all duration-500 lg:hidden flex flex-col justify-center items-center",
+        mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+      )}>
+        <nav className="flex flex-col items-center gap-6">
+          {navItems.map((item, i) => (
+            <Link key={item.href} href={`/${lang}${item.href}`} onClick={() => setMobileOpen(false)}
+              className="text-2xl font-serif text-white/90 hover:text-[#b8860b] transition-colors tracking-wide">
+              {item.label}
+            </Link>
+          ))}
+          <div className="flex gap-4 mt-8 pt-8 border-t border-white/10">
+            <Link href={lang === 'tr' ? pathname : altUrl} className={cn("text-sm", lang === 'tr' ? "text-white font-bold" : "text-white/50 hover:text-white")} onClick={() => setMobileOpen(false)}>TR</Link>
+            <span className="text-white/30">|</span>
+            <Link href={lang === 'en' ? pathname : altUrl} className={cn("text-sm", lang === 'en' ? "text-white font-bold" : "text-white/50 hover:text-white")} onClick={() => setMobileOpen(false)}>EN</Link>
+          </div>
+        </nav>
       </div>
-    </header>
+    </>
   );
 }

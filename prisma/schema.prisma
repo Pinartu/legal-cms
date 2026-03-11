@@ -1,10 +1,11 @@
 generator client {
-  provider   = "prisma-client-js"
-  engineType = "library"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // User model for Admin / Authors
@@ -29,6 +30,12 @@ model Post {
   content         String    // Rich text editor content (HTML/JSON)
   isPublished     Boolean   @default(false)
   publishedAt     DateTime?
+
+  // Internationalization
+  locale          String    @default("tr") // "tr" or "en"
+  translationOfId String?   // Links to the original post in another language
+  translationOf   Post?     @relation("PostTranslations", fields: [translationOfId], references: [id])
+  translations    Post[]    @relation("PostTranslations")
 
   // Taxonomies
   categoryId      String?
@@ -102,4 +109,18 @@ model SiteContent {
   value       String   // Stringified JSON or HTML
   description String?
   updatedAt   DateTime @updatedAt
+}
+
+// Shopify-style Page Sections (Section Builder)
+model PageSection {
+  id        String   @id @default(cuid())
+  pageId    String   // "home", "about", "contact" etc.
+  type      String   // section type: "hero", "stats", "practice_areas" etc.
+  order     Int      // display order
+  isVisible Boolean  @default(true)
+  content   String   // JSON - section-specific data
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([pageId, order])
 }
