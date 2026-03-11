@@ -7,7 +7,17 @@ const DEFAULT_LOCALE = 'tr';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip admin, api, static files, and Next.js internals
+  // ─── ADMIN AUTH PROTECTION ───
+  if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
+    const session = request.cookies.get('admin_session');
+    if (!session?.value) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = '/admin/login';
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
+  // Skip api, static files, and Next.js internals for locale logic
   if (
     pathname.startsWith('/admin') ||
     pathname.startsWith('/api') ||
@@ -35,7 +45,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Match all paths except static files and internals
     '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
   ],
 };
