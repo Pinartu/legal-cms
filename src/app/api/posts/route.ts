@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { revalidateAllPages } from '@/lib/revalidate';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -79,6 +80,7 @@ export async function POST(request: Request) {
       }
     });
 
+    revalidateAllPages();
     return NextResponse.json(newPost, { status: 201 });
   } catch (error: any) {
     if (error.code === 'P2002') {

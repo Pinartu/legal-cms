@@ -22,7 +22,7 @@ function HeroSection({ content, lang }: { content: any; lang: Locale }) {
   return (
     <section className="relative w-full min-h-screen flex items-end overflow-hidden">
       <div className="absolute inset-0 z-0">
-        <Image src={content.backgroundImage || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2600'} alt="" fill className="object-cover" priority sizes="100vw" quality={85} />
+        <Image src={content.backgroundImage || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2600'} alt="" fill className="object-cover" priority sizes="100vw" quality={75} placeholder="blur" blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIhAAAQMDBAMBAAAAAAAAAAAAAQIDBAAFEQYSITETQVFh/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEEQA/wDK7Xqi6QbtJhvTHnURnlMhLitwUEkjnHvFKUH/2Q==" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#1a2332]/95 via-[#1a2332]/70 to-[#1a2332]/40" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#1a2332] via-transparent to-transparent" />
       </div>

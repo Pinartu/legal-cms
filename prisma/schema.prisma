@@ -124,3 +124,33 @@ model PageSection {
 
   @@index([pageId, order])
 }
+
+// Footer Navigation Links (CMS-managed)
+model FooterLink {
+  id        String   @id @default(cuid())
+  label     String   // Display text
+  url       String   // Link URL (relative or absolute)
+  column    String   // Group: "explore", "publications", "legal" etc.
+  locale    String   @default("tr") // "tr" or "en"
+  order     Int      @default(0)
+  openInNewTab Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([column, locale, order])
+}
+
+// Custom Pages created from CMS
+model CustomPage {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String   // HTML content
+  locale      String   @default("tr") // "tr" or "en"
+  isPublished Boolean  @default(true)
+  metaTitle       String?
+  metaDescription String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+

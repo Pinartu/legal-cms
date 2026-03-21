@@ -28,13 +28,24 @@ export default async function LangLayout({
     orderBy: { name: 'asc' }
   });
 
+  // Fetch site settings for Header & Footer
+  const allSettings = await prisma.siteContent.findMany();
+  const siteSettings: Record<string, string> = {};
+  allSettings.forEach((s: any) => { siteSettings[s.key] = s.value; });
+
+  // Fetch footer links from DB (filtered by locale)
+  const footerLinks = await prisma.footerLink.findMany({
+    where: { locale },
+    orderBy: [{ column: 'asc' }, { order: 'asc' }],
+  });
+
   return (
     <>
-      <Header categories={categories} lang={locale} />
+      <Header categories={categories} lang={locale} siteSettings={siteSettings} />
       <main className="flex-grow">
         {children}
       </main>
-      <Footer lang={locale} />
+      <Footer lang={locale} siteSettings={siteSettings} footerLinks={footerLinks} />
     </>
   );
 }

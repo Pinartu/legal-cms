@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { revalidateAllPages } from '@/lib/revalidate';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -35,6 +36,7 @@ export async function POST(request: Request) {
       create: { key, value: String(value), description },
     });
 
+    revalidateAllPages();
     return NextResponse.json(setting);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to save setting' }, { status: 500 });

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif", display: "swap" });
 
 export const metadata: Metadata = {
   title: {
@@ -81,7 +81,7 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="tr" className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="tr" className={`${inter.variable} ${playfair.variable}`} suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"
@@ -106,7 +106,7 @@ export default async function RootLayout({
           }) }}
         />
       </head>
-      <body className="font-sans bg-[#fbfbfb] text-[#334155] antialiased min-h-screen flex flex-col">
+      <body className="font-sans bg-[#fbfbfb] text-[#334155] antialiased min-h-screen flex flex-col" suppressHydrationWarning>
         {children}
       </body>
     </html>

@@ -2,6 +2,10 @@ import { prisma } from '@/lib/prisma';
 import SectionRenderer from '@/components/sections/SectionRenderer';
 import { Locale } from '@/lib/i18n';
 
+// ISR: revalidate every 60 seconds as a fallback.
+// On-demand revalidation from admin API provides instant updates.
+export const revalidate = 60;
+
 export default async function HomePage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   const locale = lang as Locale;

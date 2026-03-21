@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateHomePage } from '@/lib/revalidate';
 
 // PUT: Reorder sections (bulk update order values)
 export async function PUT(request: NextRequest) {
@@ -21,6 +22,7 @@ export async function PUT(request: NextRequest) {
       )
     );
 
+    revalidateHomePage();
     return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

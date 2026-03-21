@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateHomePage } from '@/lib/revalidate';
 
 // PUT: Update a section
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -18,6 +19,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       data,
     });
 
+    revalidateHomePage();
     return NextResponse.json(section);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -29,6 +31,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   try {
     const { id } = await params;
     await prisma.pageSection.delete({ where: { id } });
+    revalidateHomePage();
     return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

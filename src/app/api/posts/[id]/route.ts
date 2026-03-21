@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { revalidateAllPages } from '@/lib/revalidate';
 
 export async function GET(
   request: Request,
@@ -40,7 +41,7 @@ export async function PUT(
       title, slug, content, isPublished, categoryId,
       tagIds, metaTitle, metaDescription, canonicalUrl, faqs
     } = body;
-    
+
     // Disconnect old tags and connect new ones
     const tagsUpdate = tagIds ? { set: tagIds.map((id: string) => ({ id })) } : undefined;
 
@@ -56,14 +57,15 @@ export async function PUT(
         faqs: faqs ? {
           deleteMany: {},
           create: faqs.map((faq: any) => ({
-             question: faq.question,
-             answer: faq.answer
+            question: faq.question,
+            answer: faq.answer
           }))
         } : undefined
       },
       include: { category: true, tags: true, faqs: true }
     });
 
+    revalidateAllPages();
     return NextResponse.json(updatedPost);
   } catch (error) {
     console.error('Error updating post:', error);
@@ -78,6 +80,7 @@ export async function DELETE(
   try {
     const { id } = await context.params;
     await prisma.post.delete({ where: { id } });
+    revalidateAllPages();
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to delete post' }, { status: 500 });

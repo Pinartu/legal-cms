@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { revalidateAllPages } from '@/lib/revalidate';
 
 export async function GET() {
   try {
@@ -26,6 +27,7 @@ export async function POST(request: Request) {
       data: { name, slug, description },
     });
 
+    revalidateAllPages();
     return NextResponse.json(newCategory, { status: 201 });
   } catch (error: any) {
     if (error.code === 'P2002') {

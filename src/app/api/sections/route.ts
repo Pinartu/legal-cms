@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateHomePage } from '@/lib/revalidate';
 
 // GET: Fetch sections for a page
 export async function GET(request: NextRequest) {
@@ -43,6 +44,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    revalidateHomePage();
     return NextResponse.json(section, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

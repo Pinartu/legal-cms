@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { revalidatePosts } from '@/lib/revalidate';
 
 export async function GET(
   request: Request,
@@ -31,6 +32,7 @@ export async function PUT(
       where: { id },
       data: { name, slug },
     });
+    revalidatePosts();
     return NextResponse.json(updatedTag);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update tag' }, { status: 500 });
@@ -44,6 +46,7 @@ export async function DELETE(
   try {
     const { id } = await context.params;
     await prisma.tag.delete({ where: { id } });
+    revalidatePosts();
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to delete tag' }, { status: 500 });

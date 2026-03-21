@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { revalidateAllPages } from '@/lib/revalidate';
 
 export async function GET(
   request: Request,
@@ -33,6 +34,7 @@ export async function PUT(
       where: { id },
       data: { name, slug, description },
     });
+    revalidateAllPages();
     return NextResponse.json(updatedCategory);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update category' }, { status: 500 });
@@ -48,6 +50,7 @@ export async function DELETE(
     await prisma.category.delete({
        where: { id }
     });
+    revalidateAllPages();
     return NextResponse.json({ success: true });
   } catch(error) {
     return NextResponse.json({ error: 'Failed to delete category' }, { status: 500 });

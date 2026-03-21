@@ -27,13 +27,22 @@ const TAGLINE: Record<Locale, string> = {
   en: 'Commercial Law Advisory',
 };
 
-export default function Header({ categories = [], lang = 'tr' }: { categories?: any[]; lang?: Locale }) {
+export default function Header({ categories = [], lang = 'tr', siteSettings = {} }: { categories?: any[]; lang?: Locale; siteSettings?: Record<string, string> }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
 
   const navItems = NAV_ITEMS[lang] || NAV_ITEMS.tr;
   const altLang = lang === 'tr' ? 'en' : 'tr';
+
+  // Use CMS settings with fallback defaults
+  const contactEmail = siteSettings.contact_email || 'info@legalinsights.com';
+  const contactPhone = siteSettings.contact_phone || '+90 (212) 555 00 00';
+  const siteTitle = siteSettings.site_title || 'LEGALINSIGHTS';
+
+  // Parse logo text: split at first lowercase→uppercase boundary or use as-is
+  const logoMain = siteTitle.replace(/INSIGHTS|insights/i, '');
+  const logoAccent = siteTitle.match(/INSIGHTS|insights/i)?.[0] || '';
 
   // Build the alternate-language URL
   const altUrl = pathname.replace(`/${lang}`, `/${altLang}`);
@@ -56,8 +65,8 @@ export default function Header({ categories = [], lang = 'tr' }: { categories?: 
           scrolled ? "max-h-0 opacity-0" : "max-h-10 opacity-100 mb-3"
         )}>
           <div className="flex justify-end items-center gap-6 text-xs text-white/60">
-            <a href="mailto:info@legalinsights.com" className="hover:text-white transition-colors">info@legalinsights.com</a>
-            <span>+90 (212) 555 00 00</span>
+            <a href={`mailto:${contactEmail}`} className="hover:text-white transition-colors">{contactEmail}</a>
+            <span>{contactPhone}</span>
             <div className="flex items-center gap-2 border-l border-white/20 pl-4">
               <Link href={lang === 'tr' ? pathname : altUrl} className={cn("transition-colors", lang === 'tr' ? "text-white font-semibold" : "hover:text-white")}>TR</Link>
               <span className="text-white/30">|</span>
@@ -71,10 +80,10 @@ export default function Header({ categories = [], lang = 'tr' }: { categories?: 
           <div className="flex justify-between items-center">
             <Link href={`/${lang}`} className="flex items-center gap-3 group">
               <div className="w-10 h-10 border-2 border-[#b8860b] flex items-center justify-center transition-colors group-hover:bg-[#b8860b]">
-                <span className="text-[#b8860b] font-serif text-xl font-bold group-hover:text-white transition-colors">L</span>
+                <span className="text-[#b8860b] font-serif text-xl font-bold group-hover:text-white transition-colors">{siteTitle.charAt(0)}</span>
               </div>
               <div className="hidden sm:block">
-                <span className="text-white font-serif text-xl font-bold tracking-wide">LEGAL<span className="font-light text-[#b8860b]">INSIGHTS</span></span>
+                <span className="text-white font-serif text-xl font-bold tracking-wide">{logoMain}<span className="font-light text-[#b8860b]">{logoAccent}</span></span>
                 <p className="text-[10px] text-white/40 uppercase tracking-[0.3em] -mt-0.5">{TAGLINE[lang]}</p>
               </div>
             </Link>
