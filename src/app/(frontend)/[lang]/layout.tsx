@@ -1,5 +1,6 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import DisclaimerBanner from '@/components/DisclaimerBanner';
 import { prisma } from '@/lib/prisma';
 import { Locale, SUPPORTED_LOCALES } from '@/lib/i18n';
 import { notFound } from 'next/navigation';
@@ -39,8 +40,11 @@ export default async function LangLayout({
     orderBy: [{ column: 'asc' }, { order: 'asc' }],
   });
 
+  const disclaimerVisible = siteSettings.disclaimer_visible !== 'false';
+
   return (
     <>
+      <DisclaimerBanner lang={locale} visible={disclaimerVisible} />
       <Header categories={categories} lang={locale} siteSettings={siteSettings} />
       <main className="flex-grow">
         {children}

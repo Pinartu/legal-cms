@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Settings, Globe, Share2, Type } from 'lucide-react';
 
 const GENERAL_KEYS = ['site_title', 'site_description', 'contact_email', 'contact_phone', 'contact_address'];
-const APPEARANCE_KEYS = ['footer_description', 'footer_description_en', 'footer_text', 'footer_text_en', 'about_page'];
+const APPEARANCE_KEYS = ['disclaimer_visible', 'footer_description', 'footer_description_en', 'footer_text', 'footer_text_en', 'about_page'];
 const SOCIAL_KEYS = ['social_linkedin', 'social_youtube', 'social_x', 'social_facebook'];
 const ALL_KEYS = [...GENERAL_KEYS, ...APPEARANCE_KEYS, ...SOCIAL_KEYS];
 
@@ -14,6 +14,7 @@ const LABELS: Record<string, string> = {
   contact_email: 'İletişim E-posta',
   contact_phone: 'İletişim Telefon',
   contact_address: 'İletişim Adresi',
+  disclaimer_visible: 'Yasal Uyarı Kutusu',
   footer_description: 'Footer Açıklama (Türkçe)',
   footer_description_en: 'Footer Açıklama (English)',
   footer_text: 'Footer Ek Metin (Türkçe)',
@@ -44,6 +45,7 @@ const HINTS: Record<string, string> = {
   contact_email: 'Header üst çubuğunda ve footer\'da gösterilir',
   contact_phone: 'Header üst çubuğunda ve footer\'da gösterilir',
   contact_address: 'Footer\'daki iletişim bölümünde gösterilir. Her satır için yeni satır kullanın.',
+  disclaimer_visible: 'Tüm sayfalarda header üstünde yasal uyarı kutusu gösterir. "true" = göster, "false" = gizle.',
   footer_description: 'Footer\'da logo altında görünen açıklama metni (Türkçe site için)',
   footer_description_en: 'Footer\'da logo altında görünen açıklama metni (İngilizce site için)',
   footer_text: 'Footer\'da ek metin alanı (Türkçe)',
@@ -129,7 +131,16 @@ export default function SettingsPage() {
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                 {LABELS[key] || key}
               </label>
-              {TEXTAREA_KEYS.includes(key) ? (
+              {key === 'disclaimer_visible' ? (
+                <select
+                  value={settings[key] || 'true'}
+                  onChange={e => handleChange(key, e.target.value)}
+                  className="block w-full rounded-lg border-slate-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm p-3 border bg-white"
+                >
+                  <option value="true">Göster (Visible)</option>
+                  <option value="false">Gizle (Hidden)</option>
+                </select>
+              ) : TEXTAREA_KEYS.includes(key) ? (
                 <textarea
                   rows={key === 'about_page' ? 6 : 3}
                   value={settings[key] || ''}

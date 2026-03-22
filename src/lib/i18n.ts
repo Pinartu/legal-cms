@@ -74,6 +74,9 @@ export const translations: Record<Locale, Record<string, string>> = {
     'footer.all_publications': 'Tüm Yayınlar',
     'footer.legal_analyses': 'Hukuki Analizler',
     'footer.legislation_tracking': 'Mevzuat Takibi',
+    // Disclaimer
+    'disclaimer.title': 'Yasal uyarı:',
+    'disclaimer.text': 'Bu sitedeki içerikler yalnızca genel bilgi amaçlıdır ve hukuki tavsiye niteliği taşımaz. Avustralya hukuku kapsamındaki bireysel durumlar için lisanslı bir Avustralya avukatına başvurmanızı öneririz.',
   },
   en: {
     // Header
@@ -144,6 +147,9 @@ export const translations: Record<Locale, Record<string, string>> = {
     'footer.all_publications': 'All Publications',
     'footer.legal_analyses': 'Legal Analyses',
     'footer.legislation_tracking': 'Legislation Tracking',
+    // Disclaimer
+    'disclaimer.title': 'Legal disclaimer:',
+    'disclaimer.text': 'The content on this site is for general informational purposes only and does not constitute legal advice. For individual matters under Australian law, we recommend consulting a licensed Australian lawyer.',
   },
 };
 
