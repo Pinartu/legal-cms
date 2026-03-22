@@ -42,10 +42,23 @@ export default async function LangLayout({
 
   const disclaimerVisible = siteSettings.disclaimer_visible !== 'false';
 
+  // Disclaimer CMS text (locale-aware with fallback to i18n)
+  const disclaimerTitle = locale === 'en'
+    ? (siteSettings.disclaimer_title_en || undefined)
+    : (siteSettings.disclaimer_title_tr || undefined);
+  const disclaimerText = locale === 'en'
+    ? (siteSettings.disclaimer_text_en || undefined)
+    : (siteSettings.disclaimer_text_tr || undefined);
+
   return (
     <>
-      <DisclaimerBanner lang={locale} visible={disclaimerVisible} />
       <Header categories={categories} lang={locale} siteSettings={siteSettings} />
+      <DisclaimerBanner
+        lang={locale}
+        visible={disclaimerVisible}
+        title={disclaimerTitle}
+        text={disclaimerText}
+      />
       <main className="flex-grow">
         {children}
       </main>

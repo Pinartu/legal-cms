@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Settings, Globe, Share2, Type } from 'lucide-react';
 
 const GENERAL_KEYS = ['site_title', 'site_description', 'contact_email', 'contact_phone', 'contact_address'];
-const APPEARANCE_KEYS = ['disclaimer_visible', 'footer_description', 'footer_description_en', 'footer_text', 'footer_text_en', 'about_page'];
+const APPEARANCE_KEYS = ['disclaimer_visible', 'disclaimer_title_tr', 'disclaimer_text_tr', 'disclaimer_title_en', 'disclaimer_text_en', 'footer_description', 'footer_description_en', 'footer_text', 'footer_text_en', 'about_page'];
 const SOCIAL_KEYS = ['social_linkedin', 'social_youtube', 'social_x', 'social_facebook'];
 const ALL_KEYS = [...GENERAL_KEYS, ...APPEARANCE_KEYS, ...SOCIAL_KEYS];
 
@@ -14,7 +14,11 @@ const LABELS: Record<string, string> = {
   contact_email: 'İletişim E-posta',
   contact_phone: 'İletişim Telefon',
   contact_address: 'İletişim Adresi',
-  disclaimer_visible: 'Yasal Uyarı Kutusu',
+  disclaimer_visible: 'Yasal Uyarı Kutusu Görünürlüğü',
+  disclaimer_title_tr: 'Yasal Uyarı Başlığı (TR)',
+  disclaimer_text_tr: 'Yasal Uyarı Metni (TR)',
+  disclaimer_title_en: 'Yasal Uyarı Başlığı (EN)',
+  disclaimer_text_en: 'Yasal Uyarı Metni (EN)',
   footer_description: 'Footer Açıklama (Türkçe)',
   footer_description_en: 'Footer Açıklama (English)',
   footer_text: 'Footer Ek Metin (Türkçe)',
@@ -31,6 +35,10 @@ const PLACEHOLDERS: Record<string, string> = {
   contact_email: 'info@legalinsights.com',
   contact_phone: '+90 (212) 555 00 00',
   contact_address: 'Levent Mah. Büyükdere Cad.\nNo: 100, Kat: 12\n34394 Beşiktaş / İstanbul',
+  disclaimer_title_tr: 'Yasal uyarı:',
+  disclaimer_text_tr: 'Bu sitedeki içerikler yalnızca genel bilgi amaçlıdır...',
+  disclaimer_title_en: 'Legal disclaimer:',
+  disclaimer_text_en: 'The content on this site is for general informational purposes only...',
   footer_description: 'Ticaret hukuku alanında uzmanlaşmış bir hukuk platformu.',
   footer_description_en: 'An independent legal platform specializing in commercial law.',
   site_description: 'Ticaret hukuku alanında kapsamlı hukuki danışmanlık',
@@ -46,13 +54,17 @@ const HINTS: Record<string, string> = {
   contact_phone: 'Header üst çubuğunda ve footer\'da gösterilir',
   contact_address: 'Footer\'daki iletişim bölümünde gösterilir. Her satır için yeni satır kullanın.',
   disclaimer_visible: 'Tüm sayfalarda header üstünde yasal uyarı kutusu gösterir. "true" = göster, "false" = gizle.',
+  disclaimer_title_tr: 'Boş bırakılırsa varsayılan metin kullanılır',
+  disclaimer_text_tr: 'Boş bırakılırsa varsayılan metin kullanılır',
+  disclaimer_title_en: 'Boş bırakılırsa varsayılan metin kullanılır',
+  disclaimer_text_en: 'Boş bırakılırsa varsayılan metin kullanılır',
   footer_description: 'Footer\'da logo altında görünen açıklama metni (Türkçe site için)',
   footer_description_en: 'Footer\'da logo altında görünen açıklama metni (İngilizce site için)',
   footer_text: 'Footer\'da ek metin alanı (Türkçe)',
   footer_text_en: 'Footer\'da ek metin alanı (İngilizce)',
 };
 
-const TEXTAREA_KEYS = ['about_page', 'footer_text', 'footer_text_en', 'footer_description', 'footer_description_en', 'contact_address', 'site_description'];
+const TEXTAREA_KEYS = ['about_page', 'footer_text', 'footer_text_en', 'footer_description', 'footer_description_en', 'contact_address', 'site_description', 'disclaimer_text_tr', 'disclaimer_text_en'];
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Record<string, string>>({});
