@@ -140,6 +140,20 @@ model FooterLink {
   @@index([column, locale, order])
 }
 
+// Header Navigation Links (CMS-managed)
+model HeaderLink {
+  id        String   @id @default(cuid())
+  label     String   // Display text
+  url       String   // Link URL (relative or absolute)
+  locale    String   @default("tr") // "tr" or "en"
+  order     Int      @default(0)
+  openInNewTab Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([locale, order])
+}
+
 // Custom Pages created from CMS
 model CustomPage {
   id          String   @id @default(cuid())

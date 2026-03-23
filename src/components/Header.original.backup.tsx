@@ -7,28 +7,32 @@ import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 import type { Locale } from '@/lib/i18n';
 
-// NOT: Eski sabit menü yapısı Header.original.backup.tsx dosyasına yedeklenmiştir.
+const NAV_ITEMS: Record<Locale, { label: string; href: string }[]> = {
+  tr: [
+    { label: 'Hakkımızda', href: '/about' },
+    { label: 'Uzmanlık Alanları', href: '/category/all' },
+    { label: 'Yayınlar', href: '/search' },
+    { label: 'İletişim', href: '/contact' },
+  ],
+  en: [
+    { label: 'About Us', href: '/about' },
+    { label: 'Practice Areas', href: '/category/all' },
+    { label: 'Publications', href: '/search' },
+    { label: 'Contact', href: '/contact' },
+  ],
+};
 
 const TAGLINE: Record<Locale, string> = {
   tr: 'Ticaret Hukuku Danışmanlığı',
   en: 'Commercial Law Advisory',
 };
 
-export default function Header({
-  categories = [],
-  lang = 'tr',
-  siteSettings = {},
-  headerLinks = [],
-}: {
-  categories?: any[];
-  lang?: Locale;
-  siteSettings?: Record<string, string>;
-  headerLinks?: any[];
-}) {
+export default function Header({ categories = [], lang = 'tr', siteSettings = {} }: { categories?: any[]; lang?: Locale; siteSettings?: Record<string, string> }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
 
+  const navItems = NAV_ITEMS[lang] || NAV_ITEMS.tr;
   const altLang = lang === 'tr' ? 'en' : 'tr';
 
   // Use CMS settings with fallback defaults
@@ -85,17 +89,12 @@ export default function Header({
             </Link>
 
             <nav className="hidden lg:flex items-center gap-1">
-              {headerLinks.map((item) => {
-                // Determine if URL is absolute
-                const isAbsolute = item.url.startsWith('http');
-                const href = isAbsolute ? item.url : `/${lang}${item.url.startsWith('/') ? item.url : `/${item.url}`}`;
-                return (
-                  <Link key={item.id} href={href} target={item.openInNewTab ? "_blank" : "_self"} className="px-4 py-2 text-[13px] font-medium tracking-wider uppercase text-white/80 hover:text-[#b8860b] transition-colors relative group">
-                    {item.label}
-                    <span className="absolute bottom-0 left-4 right-4 h-[2px] bg-[#b8860b] scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
-                  </Link>
-                );
-              })}
+              {navItems.map((item) => (
+                <Link key={item.href} href={`/${lang}${item.href}`} className="px-4 py-2 text-[13px] font-medium tracking-wider uppercase text-white/80 hover:text-[#b8860b] transition-colors relative group">
+                  {item.label}
+                  <span className="absolute bottom-0 left-4 right-4 h-[2px] bg-[#b8860b] scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+                </Link>
+              ))}
               {categories.slice(0, 2).map((c: any) => (
                 <Link key={c.id} href={`/${lang}/category/${c.slug}`} className="px-4 py-2 text-[13px] font-medium tracking-wider uppercase text-white/80 hover:text-[#b8860b] transition-colors relative group">
                   {c.name}
@@ -122,16 +121,12 @@ export default function Header({
         mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
       )}>
         <nav className="flex flex-col items-center gap-6">
-          {headerLinks.map((item) => {
-            const isAbsolute = item.url.startsWith('http');
-            const href = isAbsolute ? item.url : `/${lang}${item.url.startsWith('/') ? item.url : `/${item.url}`}`;
-            return (
-              <Link key={item.id} href={href} target={item.openInNewTab ? "_blank" : "_self"} onClick={() => setMobileOpen(false)}
-                className="text-2xl font-serif text-white/90 hover:text-[#b8860b] transition-colors tracking-wide">
-                {item.label}
-              </Link>
-            );
-          })}
+          {navItems.map((item, i) => (
+            <Link key={item.href} href={`/${lang}${item.href}`} onClick={() => setMobileOpen(false)}
+              className="text-2xl font-serif text-white/90 hover:text-[#b8860b] transition-colors tracking-wide">
+              {item.label}
+            </Link>
+          ))}
           <div className="flex gap-4 mt-8 pt-8 border-t border-white/10">
             <Link href={lang === 'tr' ? pathname : altUrl} className={cn("text-sm", lang === 'tr' ? "text-white font-bold" : "text-white/50 hover:text-white")} onClick={() => setMobileOpen(false)}>TR</Link>
             <span className="text-white/30">|</span>

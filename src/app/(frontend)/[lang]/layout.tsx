@@ -34,6 +34,12 @@ export default async function LangLayout({
   const siteSettings: Record<string, string> = {};
   allSettings.forEach((s: any) => { siteSettings[s.key] = s.value; });
 
+  // Fetch header links from DB
+  const headerLinks = await prisma.headerLink.findMany({
+    where: { locale },
+    orderBy: { order: 'asc' },
+  });
+
   // Fetch footer links from DB (filtered by locale)
   const footerLinks = await prisma.footerLink.findMany({
     where: { locale },
@@ -52,7 +58,7 @@ export default async function LangLayout({
 
   return (
     <>
-      <Header categories={categories} lang={locale} siteSettings={siteSettings} />
+      <Header categories={categories} lang={locale} siteSettings={siteSettings} headerLinks={headerLinks} />
       <DisclaimerBanner
         lang={locale}
         visible={disclaimerVisible}

@@ -12,6 +12,7 @@ const navigation = [
   { name: 'Etiketler', href: '/admin/tags', icon: Tags },
   { name: 'Medya', href: '/admin/media', icon: ImageIcon },
   { name: 'Özel Sayfalar', href: '/admin/custom-pages', icon: FilePlus },
+  { name: 'Üst Menü Linkleri', href: '/admin/header-links', icon: LayoutDashboard },
   { name: 'Footer Linkleri', href: '/admin/footer-links', icon: Link2 },
   { name: 'Ayarlar', href: '/admin/settings', icon: Settings },
 ];
