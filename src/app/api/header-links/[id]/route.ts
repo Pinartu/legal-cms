@@ -2,12 +2,12 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { revalidateAllPages } from '@/lib/revalidate';
 
-export async function PUT(request: Request, context: any) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = context.params;
+    const { id } = await params;
     const body = await request.json();
     
-    // Yalnızca Prisma şemasında var olan alanları güncelleyelim. (FooterLink'ten farklı olarak HeaderLink'te 'column' yok)
+    // Yalnızca Prisma şemasında var olan alanları güncelleyelim.
     const link = await prisma.headerLink.update({
       where: { id },
       data: {
@@ -25,9 +25,9 @@ export async function PUT(request: Request, context: any) {
   }
 }
 
-export async function DELETE(request: Request, context: any) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = context.params;
+    const { id } = await params;
     await prisma.headerLink.delete({ where: { id } });
     revalidateAllPages();
     return NextResponse.json({ success: true });
