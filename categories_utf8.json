@@ -1,0 +1,26 @@
+[
+  {
+    "id": "cmn2kv6m30004mqcmnagzjtoi",
+    "name": "Avustralya Göç & Vize Hukuku",
+    "slug": "avustralya-göç-vize-hukuku",
+    "description": "Skilled visa, partner visa, öğrenci vizesi ve vatandaşlık süreçlerine dair Türkçe rehberler. Avustralya'dan, birinci elden bilgiyle.",
+    "createdAt": "2026-03-23T02:39:43.326Z",
+    "updatedAt": "2026-03-23T02:39:43.326Z"
+  },
+  {
+    "id": "cmn2kw85q0005mqcmtrreedhs",
+    "name": "E-Ticaret & Dijital Ticaret Hukuku",
+    "slug": "e-ticaret-dijital-ticaret-hukuku",
+    "description": "Online mağaza sözleşmeleri, tüketici hakları, iade politikaları, Türkiye-Avustralya arası dijital satış ve KVKK/Privacy Act uyumu.",
+    "createdAt": "2026-03-23T02:40:32.079Z",
+    "updatedAt": "2026-03-23T02:40:32.079Z"
+  },
+  {
+    "id": "cmn2qepex0000o6j4arc3zvt8",
+    "name": "Teknoloji & Yazılım Hukuku",
+    "slug": "teknoloji-&-yazılım-hukuku",
+    "description": "",
+    "createdAt": "2026-03-23T05:14:52.235Z",
+    "updatedAt": "2026-03-23T05:14:52.235Z"
+  }
+]

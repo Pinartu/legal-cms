@@ -6,7 +6,8 @@ import { ArrowLeft, Calendar, Tag, User } from 'lucide-react';
 import { Locale, t } from '@/lib/i18n';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string; lang: string }> }): Promise<Metadata> {
-  const { slug, lang } = await params;
+  const { slug: rawSlug, lang } = await params;
+  const slug = decodeURIComponent(rawSlug);
   const post = await prisma.post.findUnique({ where: { slug }, include: { translations: true, translationOf: true, author: true, category: true } });
   if (!post) return { title: 'Not Found' };
 
@@ -42,7 +43,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string; lang: string }> }) {
-  const { slug, lang } = await params;
+  const { slug: rawSlug, lang } = await params;
+  const slug = decodeURIComponent(rawSlug);
   const locale = lang as Locale;
 
   const post = await prisma.post.findUnique({

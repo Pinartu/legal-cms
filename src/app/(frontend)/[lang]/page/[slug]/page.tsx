@@ -4,7 +4,8 @@ import type { Locale } from '@/lib/i18n';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+  const slug = decodeURIComponent(rawSlug);
   const page = await prisma.customPage.findUnique({ where: { slug } });
 
   if (!page) return {};
@@ -16,7 +17,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 }
 
 export default async function CustomPageRoute({ params }: { params: Promise<{ lang: string; slug: string }> }) {
-  const { lang, slug } = await params;
+  const { lang, slug: rawSlug } = await params;
+  const slug = decodeURIComponent(rawSlug);
   const locale = lang as Locale;
 
   // Find page by slug and filter by locale
