@@ -96,7 +96,7 @@ export default function Header({
                   </Link>
                 );
               })}
-              {categories.map((c: any) => (
+              {categories.slice(0, 2).map((c: any) => (
                 <Link key={c.id} href={`/${lang}/category/${c.slug}`} className="px-4 py-2 text-[13px] font-medium tracking-wider uppercase text-white/80 hover:text-[#b8860b] transition-colors relative group">
                   {c.name}
                   <span className="absolute bottom-0 left-4 right-4 h-[2px] bg-[#b8860b] scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />

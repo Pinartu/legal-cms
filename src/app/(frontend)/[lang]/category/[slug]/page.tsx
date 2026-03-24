@@ -5,37 +5,10 @@ import { Calendar, ArrowRight } from 'lucide-react';
 import { Locale, t } from '@/lib/i18n';
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string; lang: string }> }) {
-  const { slug: rawSlug, lang } = await params;
-  let slug = rawSlug;
-  try {
-    slug = decodeURIComponent(rawSlug);
-  } catch (e) {
-    // rawSlug might be malformed, fallback to original
-  }
-  
+  const { slug, lang } = await params;
   const locale = lang as Locale;
   const isAll = slug === 'all';
-
-  // Robust lookup to handle Vercel encoding/decoding inconsistencies with non-ASCII chars
-  let category = null;
-  if (!isAll) {
-    const allCategories = await prisma.category.findMany();
-    category = allCategories.find((c: any) => {
-      try {
-        const decodedDbSlug = decodeURIComponent(c.slug);
-        return (
-          c.slug === rawSlug || 
-          c.slug === slug || 
-          encodeURIComponent(c.slug) === rawSlug ||
-          decodedDbSlug === slug ||
-          decodedDbSlug === rawSlug
-        );
-      } catch (e) {
-        return c.slug === rawSlug || c.slug === slug;
-      }
-    });
-  }
-
+  const category = !isAll ? await prisma.category.findUnique({ where: { slug } }) : null;
   if (!isAll && !category) notFound();
 
   const posts = await prisma.post.findMany({

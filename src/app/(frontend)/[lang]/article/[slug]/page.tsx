@@ -6,8 +6,7 @@ import { ArrowLeft, Calendar, Tag, User } from 'lucide-react';
 import { Locale, t } from '@/lib/i18n';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string; lang: string }> }): Promise<Metadata> {
-  const { slug: rawSlug, lang } = await params;
-  const slug = decodeURIComponent(rawSlug);
+  const { slug, lang } = await params;
   const post = await prisma.post.findUnique({ where: { slug }, include: { translations: true, translationOf: true, author: true, category: true } });
   if (!post) return { title: 'Not Found' };
 
@@ -43,8 +42,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string; lang: string }> }) {
-  const { slug: rawSlug, lang } = await params;
-  const slug = decodeURIComponent(rawSlug);
+  const { slug, lang } = await params;
   const locale = lang as Locale;
 
   const post = await prisma.post.findUnique({
@@ -90,7 +88,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       {faqSchema && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />}
       <div className="bg-[#1a2332] pt-36 pb-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link href={`/${lang}`} className="inline-flex items-center gap-2 text-white/40 hover:text-[#b8860b] transition-colors text-sm mb-8 group">
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
             {t(locale, 'page.back_home')}
@@ -108,9 +106,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           <div className="flex items-center gap-3 text-sm text-white/50"><User className="w-4 h-4" /><span><strong className="font-semibold text-white/80">{post.author.name}</strong></span></div>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
-          <div className="lg:col-span-8 min-w-0 overflow-hidden w-full">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          <div className="lg:col-span-9">
             <div className="prose prose-lg max-w-none text-zinc-600 leading-relaxed prose-headings:font-serif prose-headings:font-bold prose-headings:text-[#1a2332] prose-a:text-[#b8860b] prose-blockquote:border-l-4 prose-blockquote:border-[#b8860b] prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:bg-[#f8f6f2] prose-blockquote:py-4 prose-blockquote:pr-4" dangerouslySetInnerHTML={{ __html: post.content }} />
             {post.tags.length > 0 && (
               <div className="mt-12 pt-8 border-t border-zinc-200 flex flex-wrap gap-2 items-center">
