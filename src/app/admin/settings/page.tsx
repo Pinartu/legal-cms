@@ -2,14 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { Settings, Globe, Share2, Type } from 'lucide-react';
+import FileUpload from '@/components/admin/FileUpload';
 
-const GENERAL_KEYS = ['site_title', 'site_description', 'contact_email', 'contact_phone', 'contact_address'];
+const GENERAL_KEYS = ['site_title', 'site_tagline_tr', 'site_tagline_en', 'site_logo_url', 'site_description', 'contact_email', 'contact_phone', 'contact_address'];
 const APPEARANCE_KEYS = ['disclaimer_visible', 'disclaimer_title_tr', 'disclaimer_text_tr', 'disclaimer_title_en', 'disclaimer_text_en', 'footer_description', 'footer_description_en', 'footer_text', 'footer_text_en', 'about_page'];
 const SOCIAL_KEYS = ['social_linkedin', 'social_youtube', 'social_x', 'social_facebook'];
 const ALL_KEYS = [...GENERAL_KEYS, ...APPEARANCE_KEYS, ...SOCIAL_KEYS];
 
 const LABELS: Record<string, string> = {
   site_title: 'Site Başlığı / Logo Metni',
+  site_tagline_tr: 'Alt Başlık / Slogan (TR)',
+  site_tagline_en: 'Alt Başlık / Slogan (EN)',
+  site_logo_url: 'Logo Görsel URL',
   site_description: 'Site Açıklaması (SEO)',
   contact_email: 'İletişim E-posta',
   contact_phone: 'İletişim Telefon',
@@ -32,6 +36,9 @@ const LABELS: Record<string, string> = {
 
 const PLACEHOLDERS: Record<string, string> = {
   site_title: 'LEGALINSIGHTS',
+  site_tagline_tr: 'Ticaret Hukuku Danışmanlığı',
+  site_tagline_en: 'Commercial Law Advisory',
+  site_logo_url: 'https://example.com/logo.png',
   contact_email: 'info@legalinsights.com',
   contact_phone: '+90 (212) 555 00 00',
   contact_address: 'Levent Mah. Büyükdere Cad.\nNo: 100, Kat: 12\n34394 Beşiktaş / İstanbul',
@@ -50,6 +57,9 @@ const PLACEHOLDERS: Record<string, string> = {
 
 const HINTS: Record<string, string> = {
   site_title: 'Header ve footer\'da görünen logo metni (örn: LEGALINSIGHTS)',
+  site_tagline_tr: 'Logo altında görünen kısa açıklama (Türkçe)',
+  site_tagline_en: 'Logo altında görünen kısa açıklama (English)',
+  site_logo_url: 'Logo görseli URL\'si. Boş bırakılırsa site başlığının ilk harfi kullanılır.',
   contact_email: 'Header üst çubuğunda ve footer\'da gösterilir',
   contact_phone: 'Header üst çubuğunda ve footer\'da gösterilir',
   contact_address: 'Footer\'daki iletişim bölümünde gösterilir. Her satır için yeni satır kullanın.',
@@ -143,7 +153,16 @@ export default function SettingsPage() {
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                 {LABELS[key] || key}
               </label>
-              {key === 'disclaimer_visible' ? (
+              {key === 'site_logo_url' ? (
+                <FileUpload
+                  value={settings[key] || ''}
+                  onChange={v => handleChange(key, v)}
+                  accept="image/*"
+                  preview
+                  hint={HINTS[key]}
+                  placeholder={PLACEHOLDERS[key] || ''}
+                />
+              ) : key === 'disclaimer_visible' ? (
                 <select
                   value={settings[key] || 'true'}
                   onChange={e => handleChange(key, e.target.value)}

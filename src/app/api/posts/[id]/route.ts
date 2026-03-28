@@ -38,8 +38,13 @@ export async function PUT(
     const { id } = await context.params;
     const body = await request.json();
     const {
-      title, slug, content, isPublished, categoryId,
-      tagIds, metaTitle, metaDescription, canonicalUrl, faqs
+      title, slug, content, isPublished, locale, categoryId,
+      tagIds, authorId, metaTitle, metaDescription, canonicalUrl, faqs,
+      postType, sourceUrl, sourcePlatform, embedCode, sourceTitle, sourceExcerpt,
+      sourceAuthor, sourceImageUrl, sourceDate,
+      legalDocType, legalJurisdiction, legalRefNumber,
+      legalPdfUrl, legalPdfTitle,
+      showSourceBlock, showCommentary,
     } = body;
 
     // Disconnect old tags and connect new ones
@@ -50,10 +55,27 @@ export async function PUT(
       data: {
         title, slug, content, isPublished,
         publishedAt: isPublished ? new Date() : null,
+        locale: locale || 'tr',
         categoryId: categoryId || null,
+        authorId: authorId || null,
         metaTitle, metaDescription, canonicalUrl,
+        postType: postType || 'LEGAL',
+        sourceUrl: sourceUrl || null,
+        sourcePlatform: sourcePlatform || null,
+        embedCode: embedCode || null,
+        sourceTitle: sourceTitle || null,
+        sourceExcerpt: sourceExcerpt || null,
+        sourceAuthor: sourceAuthor || null,
+        sourceImageUrl: sourceImageUrl || null,
+        sourceDate: sourceDate || null,
+        legalDocType: legalDocType || null,
+        legalJurisdiction: legalJurisdiction || null,
+        legalRefNumber: legalRefNumber || null,
+        legalPdfUrl: legalPdfUrl || null,
+        legalPdfTitle: legalPdfTitle || null,
+        showSourceBlock: showSourceBlock !== false,
+        showCommentary: showCommentary !== false,
         tags: tagsUpdate,
-        // Replace all FAQs on update for simplicity
         faqs: faqs ? {
           deleteMany: {},
           create: faqs.map((faq: any) => ({

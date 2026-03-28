@@ -37,25 +37,23 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const {
-      title, slug, content, isPublished, categoryId,
-      tagIds, authorId, metaTitle, metaDescription, canonicalUrl
+      title, slug, content, isPublished, locale, categoryId,
+      tagIds, authorId, metaTitle, metaDescription, canonicalUrl,
+      postType, sourceUrl, sourcePlatform, embedCode, sourceTitle, sourceExcerpt,
+      sourceAuthor, sourceImageUrl, sourceDate,
+      legalDocType, legalJurisdiction, legalRefNumber,
+      legalPdfUrl, legalPdfTitle,
+      showSourceBlock, showCommentary,
     } = body;
 
-    if (!title || !slug || !content || !authorId) {
+    if (!title || !slug || !content) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Create fallback temp author if database empty since Auth is missing right now
-    let user = await prisma.user.findUnique({ where: { id: authorId } });
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          id: authorId,
-          name: 'Demo Author',
-          email: 'admin@legalcms.temp',
-          passwordHash: 'not-needed',
-        }
-      });
+    let resolvedAuthorId: string | null = authorId || null;
+    if (resolvedAuthorId) {
+      const user = await prisma.user.findUnique({ where: { id: resolvedAuthorId } });
+      if (!user) resolvedAuthorId = null;
     }
 
     const newPost = await prisma.post.create({
@@ -65,11 +63,28 @@ export async function POST(request: Request) {
         content,
         isPublished: isPublished || false,
         publishedAt: isPublished ? new Date() : null,
+        locale: locale || 'tr',
         categoryId: categoryId || null,
-        authorId,
+        authorId: resolvedAuthorId,
         metaTitle,
         metaDescription,
         canonicalUrl,
+        postType: postType || 'LEGAL',
+        sourceUrl: sourceUrl || null,
+        sourcePlatform: sourcePlatform || null,
+        embedCode: embedCode || null,
+        sourceTitle: sourceTitle || null,
+        sourceExcerpt: sourceExcerpt || null,
+        sourceAuthor: sourceAuthor || null,
+        sourceImageUrl: sourceImageUrl || null,
+        sourceDate: sourceDate || null,
+        legalDocType: legalDocType || null,
+        legalJurisdiction: legalJurisdiction || null,
+        legalRefNumber: legalRefNumber || null,
+        legalPdfUrl: legalPdfUrl || null,
+        legalPdfTitle: legalPdfTitle || null,
+        showSourceBlock: showSourceBlock !== false,
+        showCommentary: showCommentary !== false,
         tags: tagIds ? {
           connect: tagIds.map((id: string) => ({ id }))
         } : undefined

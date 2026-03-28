@@ -51,7 +51,13 @@ export default function CategoriesPage() {
           <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             <div className="sm:col-span-3">
               <label className="block text-sm font-medium text-slate-700">Name</label>
-              <input type="text" value={name} onChange={e => { setName(e.target.value); setSlug(e.target.value.toLowerCase().replace(/\s+/g, '-')); }} required className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm p-2 border" />
+              <input type="text" value={name} onChange={e => {
+                setName(e.target.value);
+                setSlug(e.target.value.toLowerCase()
+                  .replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ş/g,'s')
+                  .replace(/ı/g,'i').replace(/ö/g,'o').replace(/ç/g,'c')
+                  .replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').trim());
+              }} required className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm p-2 border" />
             </div>
             <div className="sm:col-span-3">
               <label className="block text-sm font-medium text-slate-700">Slug</label>

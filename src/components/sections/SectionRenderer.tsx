@@ -120,6 +120,13 @@ function AboutTextSection({ content, lang }: { content: any; lang: Locale }) {
   );
 }
 
+// ─── POST TYPE BADGE CONFIG ───
+const POST_TYPE_BADGE: Record<string, { label: string; bg: string; text: string }> = {
+  LEGAL:  { label: 'Yasal',   bg: 'bg-amber-100',  text: 'text-amber-800' },
+  NEWS:   { label: 'Haber',   bg: 'bg-blue-100',   text: 'text-blue-800' },
+  SOCIAL: { label: 'Sosyal',  bg: 'bg-purple-100', text: 'text-purple-800' },
+};
+
 // ─── FEATURED POSTS ───
 function FeaturedPostsSection({ content, posts, lang }: { content: any; posts?: any[]; lang: Locale }) {
   const displayPosts = posts || [];
@@ -127,44 +134,93 @@ function FeaturedPostsSection({ content, posts, lang }: { content: any; posts?: 
     <section className="bg-[#f8f6f2] py-24 lg:py-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-          <div><span className="inline-block w-12 h-[2px] bg-[#b8860b] mb-4" /><h2 className="text-3xl md:text-4xl font-serif font-bold text-[#1a2332] tracking-tight">{content.title}</h2><p className="text-zinc-500 mt-3 text-base">{content.subtitle}</p></div>
-          <Link href={`/${lang}/search`} className="group flex items-center gap-2 text-[#b8860b] font-medium text-sm uppercase tracking-wider hover:text-[#1a2332] transition-colors">{t(lang, 'sections.all_publications')} <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" /></Link>
+          <div>
+            <span className="inline-block w-12 h-[2px] bg-[#b8860b] mb-4" />
+            <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#1a2332] tracking-tight">{content.title}</h2>
+            <p className="text-zinc-500 mt-3 text-base">{content.subtitle}</p>
+          </div>
+          <Link href={`/${lang}/search`} className="group flex items-center gap-2 text-[#b8860b] font-medium text-sm uppercase tracking-wider hover:text-[#1a2332] transition-colors">
+            {t(lang, 'sections.all_publications')} <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+          </Link>
         </div>
         {displayPosts.length === 0 ? (
-          <div className="text-center py-24 border border-dashed border-zinc-300"><p className="text-zinc-400 font-serif text-xl">{t(lang, 'sections.no_posts')}</p></div>
+          <div className="text-center py-24 border border-dashed border-zinc-300 rounded-lg">
+            <p className="text-zinc-400 font-serif text-xl">{t(lang, 'sections.no_posts')}</p>
+          </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {displayPosts[0] && (
-              <motion.article initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="lg:col-span-7 group">
-                <Link href={`/${lang}/article/${displayPosts[0].slug}`} className="block bg-white border border-zinc-200 hover:shadow-xl transition-all duration-500 h-full">
-                  <div className="p-8 lg:p-10 flex flex-col h-full">
-                    <div className="flex items-center gap-3 mb-6">
-                      {displayPosts[0].category && <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#b8860b] bg-[#b8860b]/10 px-3 py-1">{displayPosts[0].category.name}</span>}
-                      <span className="flex items-center gap-1.5 text-xs text-zinc-400"><Calendar className="w-3 h-3" />{displayPosts[0].publishedAt ? new Date(displayPosts[0].publishedAt).toLocaleDateString(lang === 'tr' ? 'tr-TR' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : t(lang, 'page.draft')}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {displayPosts.map((post: any, index: number) => {
+              const badge = POST_TYPE_BADGE[post.postType] || POST_TYPE_BADGE.LEGAL;
+              return (
+                <motion.article
+                  key={post.id}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.08, duration: 0.5 }}
+                  className="group"
+                >
+                  <Link href={`/${lang}/article/${post.slug}`} className="flex flex-col bg-white border border-zinc-200 hover:shadow-xl hover:border-[#b8860b]/30 transition-all duration-300 h-full overflow-hidden">
+                    {/* Image */}
+                    <div className="relative aspect-[16/9] bg-zinc-100 overflow-hidden flex-shrink-0">
+                      {post.sourceImageUrl ? (
+                        <img
+                          src={post.sourceImageUrl}
+                          alt={post.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-50 to-zinc-100">
+                          <FileText className="w-10 h-10 text-zinc-200" />
+                        </div>
+                      )}
+                      {/* Post type badge on image */}
+                      <span className={`absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 ${badge.bg} ${badge.text}`}>
+                        {badge.label}
+                      </span>
                     </div>
-                    <h3 className="text-2xl lg:text-3xl font-serif font-bold text-[#1a2332] group-hover:text-[#b8860b] transition-colors leading-snug mb-4 flex-grow">{displayPosts[0].title}</h3>
-                    <p className="text-zinc-500 text-sm leading-relaxed line-clamp-3 mb-6">{displayPosts[0].metaDescription || ""}</p>
-                    <div className="flex items-center justify-between mt-auto pt-6 border-t border-zinc-100">
-                      <span className="text-sm font-medium text-zinc-700">{displayPosts[0].author?.name}</span>
-                      <span className="text-[#b8860b] text-xs font-semibold uppercase tracking-wider flex items-center gap-1">{t(lang, 'sections.read_more')} <ArrowRight className="w-3 h-3" /></span>
+
+                    {/* Content */}
+                    <div className="flex flex-col flex-1 p-5">
+                      {/* Category + Date row */}
+                      <div className="flex items-center gap-2 mb-3 flex-wrap">
+                        {post.category && (
+                          <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#b8860b] bg-[#b8860b]/10 px-2 py-0.5">
+                            {post.category.name}
+                          </span>
+                        )}
+                        <span className="flex items-center gap-1 text-[11px] text-zinc-400 ml-auto">
+                          <Calendar className="w-3 h-3" />
+                          {post.publishedAt
+                            ? new Date(post.publishedAt).toLocaleDateString(lang === 'tr' ? 'tr-TR' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' })
+                            : t(lang, 'page.draft')}
+                        </span>
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="text-lg font-serif font-bold text-[#1a2332] leading-snug line-clamp-2 group-hover:text-[#b8860b] transition-colors mb-2">
+                        {post.title}
+                      </h3>
+
+                      {/* Description */}
+                      {post.metaDescription && (
+                        <p className="text-sm text-zinc-500 leading-relaxed line-clamp-2 mb-4">
+                          {post.metaDescription}
+                        </p>
+                      )}
+
+                      {/* Author + Read more */}
+                      <div className="flex items-center justify-between mt-auto pt-4 border-t border-zinc-100">
+                        <span className="text-xs font-medium text-zinc-500">{post.author?.name}</span>
+                        <span className="text-[#b8860b] text-xs font-semibold uppercase tracking-wider flex items-center gap-1 group-hover:gap-2 transition-all">
+                          {t(lang, 'sections.read_more')} <ArrowRight className="w-3 h-3" />
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              </motion.article>
-            )}
-            <div className="lg:col-span-5 flex flex-col gap-4">
-              {displayPosts.slice(1, 5).map((post: any, index: number) => (
-                <motion.article key={post.id} initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1, duration: 0.5 }}>
-                  <Link href={`/${lang}/article/${post.slug}`} className="group block bg-white border border-zinc-200 hover:shadow-lg hover:border-[#b8860b]/20 transition-all duration-300 p-6">
-                    <div className="flex items-center gap-3 mb-3">
-                      {post.category && <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#b8860b]">{post.category.name}</span>}
-                      <span className="text-[11px] text-zinc-400">{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString(lang === 'tr' ? 'tr-TR' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : t(lang, 'page.draft')}</span>
-                    </div>
-                    <h3 className="text-base font-serif font-semibold text-[#1a2332] group-hover:text-[#b8860b] transition-colors leading-snug line-clamp-2">{post.title}</h3>
                   </Link>
                 </motion.article>
-              ))}
-            </div>
+              );
+            })}
           </div>
         )}
       </div>

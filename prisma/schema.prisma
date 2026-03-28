@@ -8,163 +8,158 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// User model for Admin / Authors
 model User {
-  id            String    @id @default(cuid())
-  name          String
-  email         String    @unique
-  passwordHash  String
-  bio           String?   // Editable without code via panel
-  profileImage  String?
-  role          String    @default("AUTHOR") // "ADMIN", "AUTHOR"
-  posts         Post[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  bio          String?
+  profileImage String?
+  role         String   @default("AUTHOR")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  posts        Post[]
 }
 
-// Main Content Model (Articles/Posts)
 model Post {
-  id              String    @id @default(cuid())
-  title           String
-  slug            String    @unique
-  content         String    // Rich text editor content (HTML/JSON)
-  isPublished     Boolean   @default(false)
-  publishedAt     DateTime?
-
-  // Internationalization
-  locale          String    @default("tr") // "tr" or "en"
-  translationOfId String?   // Links to the original post in another language
-  translationOf   Post?     @relation("PostTranslations", fields: [translationOfId], references: [id])
-  translations    Post[]    @relation("PostTranslations")
-
-  // Taxonomies
-  categoryId      String?
-  category        Category? @relation(fields: [categoryId], references: [id])
-  tags            Tag[]     @relation("PostTags")
-
-  // Relationships
-  authorId        String
-  author          User      @relation(fields: [authorId], references: [id])
-  featuredMediaId String?
-  featuredMedia   Media?    @relation(fields: [featuredMediaId], references: [id])
-  faqs            FAQ[]     // For JSON-LD FAQ Schema injection
-
-  // Dynamic SEO Control
-  metaTitle       String?
-  metaDescription String?
-  canonicalUrl    String?
-
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id                String    @id @default(cuid())
+  title             String
+  slug              String    @unique
+  content           String
+  isPublished       Boolean   @default(false)
+  publishedAt       DateTime?
+  locale            String    @default("tr")
+  translationOfId   String?
+  categoryId        String?
+  authorId          String?
+  featuredMediaId   String?
+  metaTitle         String?
+  metaDescription   String?
+  canonicalUrl      String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  embedCode         String?
+  legalDocType      String?
+  legalJurisdiction String?
+  legalPdfTitle     String?
+  legalPdfUrl       String?
+  legalRefNumber    String?
+  postType          String    @default("LEGAL")
+  showCommentary    Boolean   @default(true)
+  showSourceBlock   Boolean   @default(true)
+  sourceAuthor      String?
+  sourceDate        String?
+  sourceExcerpt     String?
+  sourceImageUrl    String?
+  sourcePlatform    String?
+  sourceTitle       String?
+  sourceUrl         String?
+  faqs              FAQ[]
+  author            User?     @relation(fields: [authorId], references: [id])
+  category          Category? @relation(fields: [categoryId], references: [id])
+  featuredMedia     Media?    @relation(fields: [featuredMediaId], references: [id])
+  translationOf     Post?     @relation("PostTranslations", fields: [translationOfId], references: [id])
+  translations      Post[]    @relation("PostTranslations")
+  tags              Tag[]     @relation("PostTags")
 }
 
-// Taxonomy Management: Categories
 model Category {
   id          String   @id @default(cuid())
   name        String
   slug        String   @unique
   description String?
-  posts       Post[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  posts       Post[]
 }
 
-// Taxonomy Management: Tags (Multiple per post)
 model Tag {
   id        String   @id @default(cuid())
   name      String
   slug      String   @unique
-  posts     Post[]   @relation("PostTags")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  posts     Post[]   @relation("PostTags")
 }
 
-// Media Management (Images, PDF attachments for legal docs)
 model Media {
   id        String   @id @default(cuid())
   url       String
   fileName  String
-  fileType  String   // e.g., 'image/png', 'application/pdf'
-  altText   String   // Mandatory image "Alt Text" requirement
-  posts     Post[]
+  fileType  String
+  altText   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  posts     Post[]
 }
 
-// Structured FAQ Schema Data
 model FAQ {
   id        String   @id @default(cuid())
   question  String
   answer    String
   postId    String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 }
 
-// Custom CMS Static Site Content (Menus, Footer, Global Config)
 model SiteContent {
   id          String   @id @default(cuid())
-  key         String   @unique // e.g., 'footer_text', 'main_menu', 'about_page'
-  value       String   // Stringified JSON or HTML
+  key         String   @unique
+  value       String
   description String?
   updatedAt   DateTime @updatedAt
 }
 
-// Shopify-style Page Sections (Section Builder)
 model PageSection {
   id        String   @id @default(cuid())
-  pageId    String   // "home", "about", "contact" etc.
-  type      String   // section type: "hero", "stats", "practice_areas" etc.
-  order     Int      // display order
+  pageId    String
+  type      String
+  order     Int
   isVisible Boolean  @default(true)
-  content   String   // JSON - section-specific data
+  content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([pageId, order])
 }
 
-// Footer Navigation Links (CMS-managed)
 model FooterLink {
-  id        String   @id @default(cuid())
-  label     String   // Display text
-  url       String   // Link URL (relative or absolute)
-  column    String   // Group: "explore", "publications", "legal" etc.
-  locale    String   @default("tr") // "tr" or "en"
-  order     Int      @default(0)
-  openInNewTab Boolean @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  label        String
+  url          String
+  column       String
+  order        Int      @default(0)
+  openInNewTab Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  locale       String   @default("tr")
 
   @@index([column, locale, order])
 }
 
-// Header Navigation Links (CMS-managed)
 model HeaderLink {
-  id        String   @id @default(cuid())
-  label     String   // Display text
-  url       String   // Link URL (relative or absolute)
-  locale    String   @default("tr") // "tr" or "en"
-  order     Int      @default(0)
-  openInNewTab Boolean @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  label        String
+  url          String
+  locale       String   @default("tr")
+  order        Int      @default(0)
+  openInNewTab Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@index([locale, order])
 }
 
-// Custom Pages created from CMS
 model CustomPage {
-  id          String   @id @default(cuid())
-  title       String
-  slug        String   @unique
-  content     String   // HTML content
-  locale      String   @default("tr") // "tr" or "en"
-  isPublished Boolean  @default(true)
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  content         String
+  locale          String   @default("tr")
+  isPublished     Boolean  @default(true)
   metaTitle       String?
   metaDescription String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
-

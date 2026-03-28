@@ -9,7 +9,7 @@ import type { Locale } from '@/lib/i18n';
 
 // NOT: Eski sabit menü yapısı Header.original.backup.tsx dosyasına yedeklenmiştir.
 
-const TAGLINE: Record<Locale, string> = {
+const DEFAULT_TAGLINE: Record<Locale, string> = {
   tr: 'Ticaret Hukuku Danışmanlığı',
   en: 'Commercial Law Advisory',
 };
@@ -35,6 +35,8 @@ export default function Header({
   const contactEmail = siteSettings.contact_email || 'info@legalinsights.com';
   const contactPhone = siteSettings.contact_phone || '+90 (212) 555 00 00';
   const siteTitle = siteSettings.site_title || 'LEGALINSIGHTS';
+  const tagline = (lang === 'en' ? siteSettings.site_tagline_en : siteSettings.site_tagline_tr) || DEFAULT_TAGLINE[lang];
+  const logoUrl = siteSettings.site_logo_url || '';
 
   // Parse logo text: split at first lowercase→uppercase boundary or use as-is
   const logoMain = siteTitle.replace(/INSIGHTS|insights/i, '');
@@ -75,12 +77,16 @@ export default function Header({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             <Link href={`/${lang}`} className="flex items-center gap-3 group">
-              <div className="w-10 h-10 border-2 border-[#b8860b] flex items-center justify-center transition-colors group-hover:bg-[#b8860b]">
-                <span className="text-[#b8860b] font-serif text-xl font-bold group-hover:text-white transition-colors">{siteTitle.charAt(0)}</span>
-              </div>
+              {logoUrl ? (
+                <img src={logoUrl} alt={siteTitle} className="h-10 w-auto object-contain" />
+              ) : (
+                <div className="w-10 h-10 border-2 border-[#b8860b] flex items-center justify-center transition-colors group-hover:bg-[#b8860b]">
+                  <span className="text-[#b8860b] font-serif text-xl font-bold group-hover:text-white transition-colors">{siteTitle.charAt(0)}</span>
+                </div>
+              )}
               <div className="hidden sm:block">
                 <span className="text-white font-serif text-xl font-bold tracking-wide">{logoMain}<span className="font-light text-[#b8860b]">{logoAccent}</span></span>
-                <p className="text-[10px] text-white/40 uppercase tracking-[0.3em] -mt-0.5">{TAGLINE[lang]}</p>
+                {tagline && <p className="text-[10px] text-white/40 uppercase tracking-[0.3em] -mt-0.5">{tagline}</p>}
               </div>
             </Link>
 

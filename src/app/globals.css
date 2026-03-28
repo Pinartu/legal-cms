@@ -34,6 +34,32 @@ body {
   color: #475569;
 }
 
+/* Article content: prevent overflow and improve readability */
+.article-content {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.article-content img,
+.article-content iframe,
+.article-content video,
+.article-content table {
+  max-width: 100%;
+  height: auto;
+}
+
+.article-content pre {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.article-content table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Animations */
 @keyframes fadeInUp {
   from {
