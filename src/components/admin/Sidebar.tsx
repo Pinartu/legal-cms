@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { LayoutDashboard, FileText, Tags, Image as ImageIcon, Settings, FolderTree, Layers, LogOut, Link2, FilePlus } from 'lucide-react';
+import { LayoutDashboard, FileText, Tags, Image as ImageIcon, Settings, FolderTree, Layers, LogOut, Link2, FilePlus, Users } from 'lucide-react';
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -10,6 +10,7 @@ const navigation = [
   { name: 'Makaleler', href: '/admin/posts', icon: FileText },
   { name: 'Kategoriler', href: '/admin/categories', icon: FolderTree },
   { name: 'Etiketler', href: '/admin/tags', icon: Tags },
+  { name: 'Yazarlar', href: '/admin/authors', icon: Users },
   { name: 'Medya', href: '/admin/media', icon: ImageIcon },
   { name: 'Özel Sayfalar', href: '/admin/custom-pages', icon: FilePlus },
   { name: 'Üst Menü Linkleri', href: '/admin/header-links', icon: LayoutDashboard },
