@@ -20,7 +20,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
     select: {
       id: true, title: true, slug: true, postType: true,
       metaDescription: true, publishedAt: true,
-      sourceImageUrl: true,
+      coverImageUrl: true, sourceImageUrl: true,
       category: { select: { name: true, slug: true } },
       author: { select: { name: true, profileImage: true } },
     },

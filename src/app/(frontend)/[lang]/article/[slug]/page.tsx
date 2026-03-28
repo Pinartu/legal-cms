@@ -38,11 +38,17 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       modifiedTime: post.updatedAt?.toISOString(),
       authors: [post.author?.name || ''],
       section: post.category?.name || 'Hukuk',
+      ...((post.coverImageUrl || post.sourceImageUrl) && {
+        images: [{ url: (post.coverImageUrl || post.sourceImageUrl)!.startsWith('/') ? `${baseUrl}${post.coverImageUrl || post.sourceImageUrl}` : (post.coverImageUrl || post.sourceImageUrl)! }],
+      }),
     },
     twitter: {
       card: 'summary_large_image',
       title: post.metaTitle || post.title,
       description: post.metaDescription || post.title,
+      ...((post.coverImageUrl || post.sourceImageUrl) && {
+        images: [(post.coverImageUrl || post.sourceImageUrl)!.startsWith('/') ? `${baseUrl}${post.coverImageUrl || post.sourceImageUrl}` : (post.coverImageUrl || post.sourceImageUrl)!],
+      }),
     },
   };
 }
@@ -207,6 +213,19 @@ export default async function ArticlePage({
           </div>
         </div>
       </div>
+
+      {/* ── Cover image ─────────────────────────────────────────── */}
+      {post.coverImageUrl && (
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 mb-6 relative z-10">
+          <div className="rounded-lg overflow-hidden shadow-lg">
+            <img
+              src={post.coverImageUrl}
+              alt={post.title}
+              className="w-full h-auto max-h-[480px] object-cover"
+            />
+          </div>
+        </div>
+      )}
 
       {/* ── Content area (single column, max-w-3xl for readability) ─── */}
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">

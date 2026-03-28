@@ -40,7 +40,7 @@ export async function PUT(
     const {
       title, slug, content, isPublished, locale, categoryId,
       tagIds, authorId, metaTitle, metaDescription, canonicalUrl, faqs,
-      postType, sourceUrl, sourcePlatform, embedCode, sourceTitle, sourceExcerpt,
+      postType, coverImageUrl, sourceUrl, sourcePlatform, embedCode, sourceTitle, sourceExcerpt,
       sourceAuthor, sourceImageUrl, sourceDate,
       legalDocType, legalJurisdiction, legalRefNumber,
       legalPdfUrl, legalPdfTitle,
@@ -60,6 +60,7 @@ export async function PUT(
         authorId: authorId || null,
         metaTitle, metaDescription, canonicalUrl,
         postType: postType || 'LEGAL',
+        coverImageUrl: coverImageUrl || null,
         sourceUrl: sourceUrl || null,
         sourcePlatform: sourcePlatform || null,
         embedCode: embedCode || null,
