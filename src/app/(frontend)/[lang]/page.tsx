@@ -17,12 +17,15 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
 
   const posts = await prisma.post.findMany({
     where: { isPublished: true, locale: lang },
-    include: {
-      category: true,
-      author: { select: { name: true, profileImage: true } }
+    select: {
+      id: true, title: true, slug: true, postType: true,
+      metaDescription: true, publishedAt: true,
+      sourceImageUrl: true,
+      category: { select: { name: true, slug: true } },
+      author: { select: { name: true, profileImage: true } },
     },
     orderBy: { publishedAt: 'desc' },
-    take: 6
+    take: 6,
   });
 
   return (
