@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import FileUpload from '@/components/admin/FileUpload';
@@ -83,17 +83,23 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const isNew = paramsResolved?.id === 'new';
   const [activeTab, setActiveTab] = useState<TabId>('content');
 
-  // Basic
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
-  const [content, setContent] = useState('');
   const [isPublished, setIsPublished] = useState(false);
   const [locale, setLocale] = useState('tr');
   const [categoryId, setCategoryId] = useState('');
   const [tagIds, setTagIds] = useState<string[]>([]);
   const [postType, setPostType] = useState<PostType>('LEGAL');
 
-  // Source (shared)
+  // Content is stored in a ref so Quill typing doesn't re-render the rest of the form.
+  // The ref is always up-to-date; a state setter is only used on initial load.
+  const contentRef = useRef('');
+  const [contentForEditor, setContentForEditor] = useState('');
+
+  const handleContentChange = useCallback((v: string) => {
+    contentRef.current = v;
+  }, []);
+
   const [sourceUrl, setSourceUrl] = useState('');
   const [sourcePlatform, setSourcePlatform] = useState('twitter');
   const [embedCode, setEmbedCode] = useState('');
@@ -103,29 +109,25 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const [sourceImageUrl, setSourceImageUrl] = useState('');
   const [sourceDate, setSourceDate] = useState('');
 
-  // Legal-specific
+  const [coverImageUrl, setCoverImageUrl] = useState('');
+
   const [legalDocType, setLegalDocType] = useState('kanun');
   const [legalJurisdiction, setLegalJurisdiction] = useState('Avustralya');
   const [legalRefNumber, setLegalRefNumber] = useState('');
   const [legalPdfUrl, setLegalPdfUrl] = useState('');
   const [legalPdfTitle, setLegalPdfTitle] = useState('');
 
-  // Visibility
   const [showSourceBlock, setShowSourceBlock] = useState(true);
   const [showCommentary, setShowCommentary] = useState(true);
 
-  // SEO
   const [metaTitle, setMetaTitle] = useState('');
   const [metaDescription, setMetaDescription] = useState('');
   const [canonicalUrl, setCanonicalUrl] = useState('');
 
-  // FAQ
   const [faqs, setFaqs] = useState<FAQ[]>([]);
 
-  // Author
   const [authorId, setAuthorId] = useState('');
 
-  // Options
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [users, setUsers] = useState<UserOption[]>([]);
@@ -139,13 +141,16 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
       fetch(`/api/posts/${paramsResolved.id}`).then(r => r.json()).then((data) => {
         setTitle(data.title || '');
         setSlug(data.slug || '');
-        setContent(data.content || '');
+        const c = data.content || '';
+        contentRef.current = c;
+        setContentForEditor(c);
         setIsPublished(data.isPublished || false);
         setLocale(data.locale || 'tr');
         setCategoryId(data.categoryId || '');
         setTagIds((data.tags || []).map((t: Tag) => t.id));
         setPostType(data.postType || 'LEGAL');
         setAuthorId(data.authorId || '');
+        setCoverImageUrl(data.coverImageUrl || '');
         setSourceUrl(data.sourceUrl || '');
         setSourcePlatform(data.sourcePlatform || 'twitter');
         setEmbedCode(data.embedCode || '');
@@ -173,11 +178,37 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
     }
   }, [paramsResolved, isNew]);
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value;
+    setTitle(v);
+    if (isNew) {
+      setSlug(
+        v.toLowerCase()
+          .replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's')
+          .replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c')
+          .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim()
+      );
+    }
+  }, [isNew]);
+
+  const updateFaqField = useCallback((idx: number, field: 'question' | 'answer', value: string) => {
+    setFaqs(prev => prev.map((faq, i) => i === idx ? { ...faq, [field]: value } : faq));
+  }, []);
+
+  const removeFaq = useCallback((idx: number) => {
+    setFaqs(prev => prev.filter((_, i) => i !== idx));
+  }, []);
+
+  const addFaq = useCallback(() => {
+    setFaqs(prev => [...prev, { question: '', answer: '' }]);
+  }, []);
+
+  const handleSave = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     const payload = {
-      title, slug, content, isPublished, locale, categoryId, tagIds,
+      title, slug, content: contentRef.current, isPublished, locale, categoryId, tagIds,
       postType,
+      coverImageUrl: coverImageUrl || null,
       sourceUrl: sourceUrl || null,
       sourcePlatform: sourcePlatform || null,
       embedCode: embedCode || null,
@@ -203,7 +234,13 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
     const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     if (res.ok) router.push('/admin/posts');
     else alert('Kaydetme başarısız oldu. Lütfen tekrar deneyin.');
-  };
+  }, [
+    title, slug, isPublished, locale, categoryId, tagIds, postType,
+    coverImageUrl, sourceUrl, sourcePlatform, embedCode, sourceTitle, sourceExcerpt,
+    sourceAuthor, sourceImageUrl, sourceDate, legalDocType, legalJurisdiction,
+    legalRefNumber, legalPdfUrl, legalPdfTitle, showSourceBlock, showCommentary,
+    metaTitle, metaDescription, canonicalUrl, faqs, authorId, isNew, paramsResolved, router,
+  ]);
 
   if (!paramsResolved) {
     return <div className="flex items-center justify-center h-64 text-slate-400">Yükleniyor...</div>;
@@ -219,13 +256,12 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
   return (
     <form onSubmit={handleSave} className="pb-24">
-      {/* ─── Sticky top bar ───────────────────────────────────────────── */}
+      {/* Sticky top bar */}
       <div className="sticky top-0 z-20 bg-white border-b border-slate-200 shadow-sm px-4 py-3 mb-6 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <h2 className="text-lg font-bold font-serif text-slate-900 mr-2">
             {isNew ? 'Yeni Yazı' : 'Yazı Düzenle'}
           </h2>
-          {/* Post type selector */}
           {(Object.keys(POST_TYPE_CONFIG) as PostType[]).map((type) => (
             <button
               key={type}
@@ -268,7 +304,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* ─── Main column ──────────────────────────────────────────── */}
+        {/* Main column */}
         <div className="lg:col-span-2 space-y-6">
 
           {/* Title & Slug */}
@@ -279,13 +315,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                 type="text"
                 required
                 value={title}
-                onChange={e => {
-                  setTitle(e.target.value);
-                  if (isNew) setSlug(e.target.value.toLowerCase()
-                    .replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's')
-                    .replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c')
-                    .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim());
-                }}
+                onChange={handleTitleChange}
                 className="block w-full rounded-md border border-slate-300 p-2.5 shadow-sm focus:border-slate-500 focus:ring-1 focus:ring-slate-500 text-slate-900"
                 placeholder="Yazı başlığı..."
               />
@@ -325,7 +355,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
             </div>
 
             <div className="p-6">
-              {/* ── Tab: Content & Visibility ─────────────────────── */}
+              {/* Tab: Content & Visibility */}
               {activeTab === 'content' && (
                 <div className="space-y-6">
                   <div>
@@ -334,7 +364,20 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                       {postType === 'NEWS'   && 'Haber Yorumu & Hukuki Analiz'}
                       {postType === 'SOCIAL' && 'Sosyal Medya Yorumu & Hukuki Analiz'}
                     </label>
-                    <RichTextEditor value={content} onChange={setContent} />
+                    <RichTextEditor value={contentForEditor} onChange={handleContentChange} />
+                  </div>
+
+                  {/* Cover image */}
+                  <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
+                    <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3">Kapak Görseli</h4>
+                    <FileUpload
+                      value={coverImageUrl}
+                      onChange={setCoverImageUrl}
+                      accept="image/*"
+                      preview
+                      placeholder="URL girin veya görsel yükleyin"
+                      hint="Ana sayfada ve listelemelerde yazının önizleme görseli olarak gösterilir."
+                    />
                   </div>
 
                   {/* Visibility toggles */}
@@ -358,7 +401,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                 </div>
               )}
 
-              {/* ── Tab: Source (type-specific) ────────────────────── */}
+              {/* Tab: Source (type-specific) */}
               {activeTab === 'source' && (
                 <div className="space-y-5">
                   {/* SOCIAL */}
@@ -410,7 +453,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                       <div>
                         <label className="block text-sm font-semibold text-slate-700 mb-1">
                           Embed Kodu
-                          <span className="ml-1 text-xs text-slate-400 font-normal">(Platform'dan kopyalanan oEmbed/iframe kodu)</span>
+                          <span className="ml-1 text-xs text-slate-400 font-normal">(Platform&apos;dan kopyalanan oEmbed/iframe kodu)</span>
                         </label>
                         <textarea rows={6} value={embedCode} onChange={e => setEmbedCode(e.target.value)} className="block w-full rounded-md border border-slate-300 p-2.5 font-mono text-xs shadow-sm resize-y" placeholder={'<blockquote class="twitter-tweet">...</blockquote>\n<script async src="https://platform.twitter.com/widgets.js"></script>'} />
                         <p className="text-xs text-slate-400 mt-1">Embed kodu girilirse platformun resmi görünümü kullanılır. Girilmezse önizleme kartı gösterilir.</p>
@@ -549,7 +592,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                 </div>
               )}
 
-              {/* ── Tab: SEO ──────────────────────────────────────────── */}
+              {/* Tab: SEO */}
               {activeTab === 'seo' && (
                 <div className="space-y-5">
                   <div>
@@ -567,7 +610,6 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                     <input type="url" value={canonicalUrl} onChange={e => setCanonicalUrl(e.target.value)} className="block w-full rounded-md border border-slate-300 p-2.5 shadow-sm" placeholder="https://..." />
                   </div>
 
-                  {/* Auto-generate hint for NEWS */}
                   {postType === 'NEWS' && !metaTitle && sourceTitle && (
                     <div className="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm text-blue-700">
                       <strong>İpucu:</strong> Meta başlık olarak haber başlığını kullanabilirsiniz:
@@ -577,14 +619,14 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                 </div>
               )}
 
-              {/* ── Tab: FAQ ──────────────────────────────────────────── */}
+              {/* Tab: FAQ */}
               {activeTab === 'faq' && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-slate-500">Google SSS snippet'i için yapılandırılmış veri (JSON-LD)</p>
+                    <p className="text-sm text-slate-500">Google SSS snippet&apos;i için yapılandırılmış veri (JSON-LD)</p>
                     <button
                       type="button"
-                      onClick={() => setFaqs([...faqs, { question: '', answer: '' }])}
+                      onClick={addFaq}
                       className="text-sm bg-slate-900 text-white px-3 py-1.5 rounded-md font-medium hover:bg-slate-800 transition-colors"
                     >
                       + Soru Ekle
@@ -599,7 +641,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                     <div key={idx} className="border border-slate-200 p-4 rounded-lg space-y-3 relative bg-slate-50">
                       <button
                         type="button"
-                        onClick={() => setFaqs(faqs.filter((_, i) => i !== idx))}
+                        onClick={() => removeFaq(idx)}
                         className="absolute top-3 right-3 text-red-400 text-xs font-medium hover:text-red-600 transition-colors"
                       >
                         Kaldır
@@ -609,7 +651,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                         <input
                           type="text"
                           value={faq.question}
-                          onChange={e => { const f = [...faqs]; f[idx].question = e.target.value; setFaqs(f); }}
+                          onChange={e => updateFaqField(idx, 'question', e.target.value)}
                           className="block w-full rounded-md border border-slate-300 p-2 text-sm shadow-sm"
                         />
                       </div>
@@ -618,7 +660,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                         <textarea
                           rows={2}
                           value={faq.answer}
-                          onChange={e => { const f = [...faqs]; f[idx].answer = e.target.value; setFaqs(f); }}
+                          onChange={e => updateFaqField(idx, 'answer', e.target.value)}
                           className="block w-full rounded-md border border-slate-300 p-2 text-sm shadow-sm resize-y"
                         />
                       </div>
@@ -630,7 +672,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
           </div>
         </div>
 
-        {/* ─── Sidebar ──────────────────────────────────────────────── */}
+        {/* Sidebar */}
         <div className="space-y-5">
           {/* Post type info card */}
           <div className={`rounded-lg border p-4 ${
@@ -695,8 +737,8 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                       type="checkbox"
                       checked={tagIds.includes(tag.id)}
                       onChange={e => {
-                        if (e.target.checked) setTagIds([...tagIds, tag.id]);
-                        else setTagIds(tagIds.filter(id => id !== tag.id));
+                        if (e.target.checked) setTagIds(prev => [...prev, tag.id]);
+                        else setTagIds(prev => prev.filter(id => id !== tag.id));
                       }}
                       className="rounded border-slate-300 text-slate-900 focus:ring-slate-900 h-4 w-4"
                     />

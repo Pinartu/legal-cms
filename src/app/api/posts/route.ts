@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     const {
       title, slug, content, isPublished, locale, categoryId,
       tagIds, authorId, metaTitle, metaDescription, canonicalUrl,
-      postType, sourceUrl, sourcePlatform, embedCode, sourceTitle, sourceExcerpt,
+      postType, coverImageUrl, sourceUrl, sourcePlatform, embedCode, sourceTitle, sourceExcerpt,
       sourceAuthor, sourceImageUrl, sourceDate,
       legalDocType, legalJurisdiction, legalRefNumber,
       legalPdfUrl, legalPdfTitle,
@@ -70,6 +70,7 @@ export async function POST(request: Request) {
         metaDescription,
         canonicalUrl,
         postType: postType || 'LEGAL',
+        coverImageUrl: coverImageUrl || null,
         sourceUrl: sourceUrl || null,
         sourcePlatform: sourcePlatform || null,
         embedCode: embedCode || null,

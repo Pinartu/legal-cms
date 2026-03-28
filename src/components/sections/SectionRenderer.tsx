@@ -162,28 +162,30 @@ function FeaturedPostsSection({ content, posts, lang }: { content: any; posts?: 
                 >
                   <Link href={`/${lang}/article/${post.slug}`} className="flex flex-col bg-white border border-zinc-200 hover:shadow-xl hover:border-[#b8860b]/30 transition-all duration-300 h-full overflow-hidden">
                     {/* Image */}
-                    <div className="relative aspect-[16/9] bg-zinc-100 overflow-hidden flex-shrink-0">
-                      {post.sourceImageUrl ? (
+                    {(post.coverImageUrl || post.sourceImageUrl) && (
+                      <div className="relative aspect-[16/9] bg-zinc-100 overflow-hidden flex-shrink-0">
                         <img
-                          src={post.sourceImageUrl}
+                          src={post.coverImageUrl || post.sourceImageUrl}
                           alt={post.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-50 to-zinc-100">
-                          <FileText className="w-10 h-10 text-zinc-200" />
-                        </div>
-                      )}
-                      {/* Post type badge on image */}
-                      <span className={`absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 ${badge.bg} ${badge.text}`}>
-                        {badge.label}
-                      </span>
-                    </div>
+                        {/* Post type badge on image */}
+                        <span className={`absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 ${badge.bg} ${badge.text}`}>
+                          {badge.label}
+                        </span>
+                      </div>
+                    )}
 
                     {/* Content */}
                     <div className="flex flex-col flex-1 p-5">
                       {/* Category + Date row */}
                       <div className="flex items-center gap-2 mb-3 flex-wrap">
+                        {/* Post type badge (only when no image) */}
+                        {!(post.coverImageUrl || post.sourceImageUrl) && (
+                          <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 ${badge.bg} ${badge.text}`}>
+                            {badge.label}
+                          </span>
+                        )}
                         {post.category && (
                           <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#b8860b] bg-[#b8860b]/10 px-2 py-0.5">
                             {post.category.name}

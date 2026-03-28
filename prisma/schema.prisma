@@ -38,6 +38,7 @@ model Post {
   canonicalUrl      String?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+  coverImageUrl     String?
   embedCode         String?
   legalDocType      String?
   legalJurisdiction String?
