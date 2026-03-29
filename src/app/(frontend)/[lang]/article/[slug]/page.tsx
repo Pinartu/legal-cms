@@ -91,7 +91,7 @@ export default async function ArticlePage({
     description: post.metaDescription || post.title,
     datePublished: post.publishedAt?.toISOString(),
     dateModified: post.updatedAt?.toISOString(),
-    author: { '@type': 'Person', name: post.author.name },
+    author: { '@type': 'Person', name: post.author?.name || 'Unknown' },
     publisher: { '@type': 'Organization', name: 'LegalInsights', url: baseUrl },
     mainEntityOfPage: `${baseUrl}/${lang}/article/${slug}`,
     inLanguage: lang === 'tr' ? 'tr-TR' : 'en-US',
@@ -180,10 +180,12 @@ export default async function ArticlePage({
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white leading-tight mb-8">
             {post.title}
           </h1>
-          <div className="flex items-center gap-3 text-sm text-white/50">
-            <User className="w-4 h-4" />
-            <span><strong className="font-semibold text-white/80">{post.author.name}</strong></span>
-          </div>
+          {post.author?.name && (
+            <div className="flex items-center gap-3 text-sm text-white/50">
+              <User className="w-4 h-4" />
+              <span><strong className="font-semibold text-white/80">{post.author.name}</strong></span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -191,10 +193,12 @@ export default async function ArticlePage({
       <div className="border-b border-zinc-100 bg-[#fdf9f0]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
-            <div className="flex items-center gap-2">
-              <User className="w-3.5 h-3.5 text-zinc-400" />
-              <span className="text-zinc-700 font-medium">{post.author.name}</span>
-            </div>
+            {post.author?.name && (
+              <div className="flex items-center gap-2">
+                <User className="w-3.5 h-3.5 text-zinc-400" />
+                <span className="text-zinc-700 font-medium">{post.author.name}</span>
+              </div>
+            )}
             {post.category && (
               <Link
                 href={`/${lang}/category/${post.category.slug}`}
