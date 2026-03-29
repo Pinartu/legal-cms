@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { canonicalOriginFromSiteMap, fetchSiteSettingsForMetadata } from '@/lib/global-metadata';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import Link from 'next/link';
@@ -16,13 +17,17 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   });
   if (!post) return { title: 'Not Found' };
 
+  const site = await fetchSiteSettingsForMetadata();
+  const baseUrl = canonicalOriginFromSiteMap(site);
+  const siteName = site.site_title?.trim() || 'LegalInsights';
+  const defaultDesc = site.site_description?.trim() || post.title;
+
   const altLang = lang === 'tr' ? 'en' : 'tr';
   const altPost = post.translations?.[0] || post.translationOf;
-  const baseUrl = 'https://legalinsights.example.com';
 
   return {
     title: post.metaTitle || post.title,
-    description: post.metaDescription || post.title,
+    description: post.metaDescription || defaultDesc,
     alternates: {
       canonical: post.canonicalUrl || `${baseUrl}/${lang}/article/${slug}`,
       languages: altPost ? { [altLang]: `/${altLang}/article/${altPost.slug}` } : undefined,
@@ -31,9 +36,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       type: 'article',
       locale: lang === 'tr' ? 'tr_TR' : 'en_US',
       title: post.metaTitle || post.title,
-      description: post.metaDescription || post.title,
+      description: post.metaDescription || defaultDesc,
       url: `${baseUrl}/${lang}/article/${slug}`,
-      siteName: 'LegalInsights',
+      siteName: siteName,
       publishedTime: post.publishedAt?.toISOString(),
       modifiedTime: post.updatedAt?.toISOString(),
       authors: [post.author?.name || ''],
@@ -45,7 +50,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     twitter: {
       card: 'summary_large_image',
       title: post.metaTitle || post.title,
-      description: post.metaDescription || post.title,
+      description: post.metaDescription || defaultDesc,
       ...((post.coverImageUrl || post.sourceImageUrl) && {
         images: [(post.coverImageUrl || post.sourceImageUrl)!.startsWith('/') ? `${baseUrl}${post.coverImageUrl || post.sourceImageUrl}` : (post.coverImageUrl || post.sourceImageUrl)!],
       }),
@@ -77,8 +82,11 @@ export default async function ArticlePage({
   });
   if (!post) notFound();
 
+  const site = await fetchSiteSettingsForMetadata();
+  const baseUrl = canonicalOriginFromSiteMap(site);
+  const siteName = site.site_title?.trim() || 'LegalInsights';
+
   const altPost = post.translations?.[0] || post.translationOf;
-  const baseUrl = 'https://legalinsights.example.com';
 
   const postType = (post.postType || 'LEGAL') as string;
   const typeBadge = POST_TYPE_BADGE[postType] || POST_TYPE_BADGE.LEGAL;
@@ -92,7 +100,7 @@ export default async function ArticlePage({
     datePublished: post.publishedAt?.toISOString(),
     dateModified: post.updatedAt?.toISOString(),
     author: { '@type': 'Person', name: post.author?.name || 'Unknown' },
-    publisher: { '@type': 'Organization', name: 'LegalInsights', url: baseUrl },
+    publisher: { '@type': 'Organization', name: siteName, url: baseUrl },
     mainEntityOfPage: `${baseUrl}/${lang}/article/${slug}`,
     inLanguage: lang === 'tr' ? 'tr-TR' : 'en-US',
     ...(post.category && { articleSection: post.category.name }),

@@ -52,7 +52,10 @@ export default function Footer({ lang = 'tr', siteSettings = {}, footerLinks = [
   const tagline = lang === 'en'
     ? (siteSettings.site_tagline_en || 'Commercial Law Advisory')
     : (siteSettings.site_tagline_tr || 'Ticaret Hukuku Danışmanlığı');
-  const logoUrl = siteSettings.site_logo_url || '';
+  const logoUrl =
+    (lang === 'en'
+      ? (siteSettings.site_logo_url_en || siteSettings.site_logo_url)
+      : (siteSettings.site_logo_url_tr || siteSettings.site_logo_url)) || '';
 
   // Parse logo text
   const logoMain = siteTitle.replace(/INSIGHTS|insights/i, '');

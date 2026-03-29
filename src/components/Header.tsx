@@ -36,7 +36,10 @@ export default function Header({
   const contactPhone = siteSettings.contact_phone || '+90 (212) 555 00 00';
   const siteTitle = siteSettings.site_title || 'LEGALINSIGHTS';
   const tagline = (lang === 'en' ? siteSettings.site_tagline_en : siteSettings.site_tagline_tr) || DEFAULT_TAGLINE[lang];
-  const logoUrl = siteSettings.site_logo_url || '';
+  const logoUrl =
+    (lang === 'en'
+      ? (siteSettings.site_logo_url_en || siteSettings.site_logo_url)
+      : (siteSettings.site_logo_url_tr || siteSettings.site_logo_url)) || '';
 
   // Parse logo text: split at first lowercase→uppercase boundary or use as-is
   const logoMain = siteTitle.replace(/INSIGHTS|insights/i, '');

@@ -1,8 +1,10 @@
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
+import { canonicalOriginFromSiteMap, fetchSiteSettingsForMetadata } from '@/lib/global-metadata';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://legalinsights.example.com';
+  const site = await fetchSiteSettingsForMetadata();
+  const baseUrl = canonicalOriginFromSiteMap(site);
   const locales = ['tr', 'en'];
 
   // Base routes for both languages

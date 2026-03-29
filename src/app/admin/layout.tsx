@@ -1,7 +1,13 @@
 import Sidebar from '@/components/admin/Sidebar';
 import { Inter } from 'next/font/google';
+import type { Metadata } from 'next';
 
 const inter = Inter({ subsets: ['latin'] });
+
+export const metadata: Metadata = {
+  title: { default: 'Yönetim Paneli', template: '%s | CMS' },
+  robots: { index: false, follow: false },
+};
 
 export default function AdminLayout({
   children,

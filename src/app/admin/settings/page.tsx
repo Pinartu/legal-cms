@@ -4,7 +4,21 @@ import { useState, useEffect } from 'react';
 import { Settings, Globe, Share2, Type } from 'lucide-react';
 import FileUpload from '@/components/admin/FileUpload';
 
-const GENERAL_KEYS = ['site_title', 'site_tagline_tr', 'site_tagline_en', 'site_logo_url', 'site_description', 'contact_email', 'contact_phone', 'contact_address'];
+const GENERAL_KEYS = [
+  'site_title',
+  'site_tagline_tr',
+  'site_tagline_en',
+  'site_logo_url',
+  'site_logo_url_tr',
+  'site_logo_url_en',
+  'site_description',
+  'site_canonical_base_url',
+  'site_og_image_url',
+  'site_twitter_handle',
+  'contact_email',
+  'contact_phone',
+  'contact_address',
+];
 const APPEARANCE_KEYS = ['disclaimer_visible', 'disclaimer_title_tr', 'disclaimer_text_tr', 'disclaimer_title_en', 'disclaimer_text_en', 'footer_description', 'footer_description_en', 'footer_text', 'footer_text_en', 'about_page'];
 const SOCIAL_KEYS = ['social_linkedin', 'social_youtube', 'social_x', 'social_facebook'];
 const ALL_KEYS = [...GENERAL_KEYS, ...APPEARANCE_KEYS, ...SOCIAL_KEYS];
@@ -13,8 +27,13 @@ const LABELS: Record<string, string> = {
   site_title: 'Site Başlığı / Logo Metni',
   site_tagline_tr: 'Alt Başlık / Slogan (TR)',
   site_tagline_en: 'Alt Başlık / Slogan (EN)',
-  site_logo_url: 'Logo Görsel URL',
-  site_description: 'Site Açıklaması (SEO)',
+  site_logo_url: 'Logo Görsel URL (varsayılan)',
+  site_logo_url_tr: 'Logo (TR) — görsel yükleme',
+  site_logo_url_en: 'Logo (EN) — görsel yükleme',
+  site_description: 'Site Açıklaması (varsayılan meta description)',
+  site_canonical_base_url: 'Canonical / site kök URL',
+  site_og_image_url: 'Open Graph görseli (sosyal paylaşım)',
+  site_twitter_handle: 'Twitter / X kullanıcı adı',
   contact_email: 'İletişim E-posta',
   contact_phone: 'İletişim Telefon',
   contact_address: 'İletişim Adresi',
@@ -39,6 +58,11 @@ const PLACEHOLDERS: Record<string, string> = {
   site_tagline_tr: 'Ticaret Hukuku Danışmanlığı',
   site_tagline_en: 'Commercial Law Advisory',
   site_logo_url: 'https://example.com/logo.png',
+  site_logo_url_tr: '',
+  site_logo_url_en: '',
+  site_canonical_base_url: 'https://auinsight.com',
+  site_og_image_url: 'https://example.com/og-1200x630.jpg',
+  site_twitter_handle: 'hesabiniz',
   contact_email: 'info@legalinsights.com',
   contact_phone: '+90 (212) 555 00 00',
   contact_address: 'Levent Mah. Büyükdere Cad.\nNo: 100, Kat: 12\n34394 Beşiktaş / İstanbul',
@@ -59,7 +83,13 @@ const HINTS: Record<string, string> = {
   site_title: 'Header ve footer\'da görünen logo metni (örn: LEGALINSIGHTS)',
   site_tagline_tr: 'Logo altında görünen kısa açıklama (Türkçe)',
   site_tagline_en: 'Logo altında görünen kısa açıklama (English)',
-  site_logo_url: 'Logo görseli URL\'si. Boş bırakılırsa site başlığının ilk harfi kullanılır.',
+  site_logo_url: 'Tüm diller için varsayılan logo. TR/EN için ayrı logo yoksa bu kullanılır.',
+  site_logo_url_tr: 'Türkçe sitede header/footer’da gösterilir; boşsa varsayılan logo kullanılır.',
+  site_logo_url_en: 'İngilizce sitede header/footer’da gösterilir; boşsa varsayılan logo kullanılır.',
+  site_canonical_base_url: 'metadataBase ve JSON-LD URL’leri için (sonunda / olmadan, örn: https://auinsight.com)',
+  site_og_image_url: 'Facebook, LinkedIn vb. paylaşımlarda kullanılır. Önerilen boyut 1200×630 px.',
+  site_twitter_handle: '@ işareti olmadan yazın (örn: hesabiniz). Twitter/X kart meta verilerinde kullanılır.',
+  site_description: 'Tüm sayfalarda varsayılan meta description; yazıda özel açıklama yoksa kullanılır.',
   contact_email: 'Header üst çubuğunda ve footer\'da gösterilir',
   contact_phone: 'Header üst çubuğunda ve footer\'da gösterilir',
   contact_address: 'Footer\'daki iletişim bölümünde gösterilir. Her satır için yeni satır kullanın.',
@@ -153,7 +183,7 @@ export default function SettingsPage() {
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                 {LABELS[key] || key}
               </label>
-              {key === 'site_logo_url' ? (
+              {['site_logo_url', 'site_logo_url_tr', 'site_logo_url_en', 'site_og_image_url'].includes(key) ? (
                 <FileUpload
                   value={settings[key] || ''}
                   onChange={v => handleChange(key, v)}

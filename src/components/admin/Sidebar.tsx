@@ -39,6 +39,7 @@ export default function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
+              suppressHydrationWarning
               className="flex items-center px-2 py-3 text-sm font-medium rounded-md hover:bg-slate-800 transition-colors text-slate-300 hover:text-white"
             >
               <Icon className="mr-3 h-5 w-5 flex-shrink-0" />
@@ -49,7 +50,9 @@ export default function Sidebar() {
       </nav>
       <div className="p-4 border-t border-slate-800">
         <button
+          type="button"
           onClick={handleLogout}
+          suppressHydrationWarning
           className="flex items-center gap-2 w-full px-2 py-3 text-sm font-medium rounded-md text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
         >
           <LogOut className="h-5 w-5 flex-shrink-0" />
